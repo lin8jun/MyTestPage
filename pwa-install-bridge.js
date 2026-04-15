@@ -1,6 +1,8 @@
 const BRIDGE_EVENT_NAME = "cc-pwa-install-state-change";
 const BRIDGE_SCRIPT_URL = "https://cdn.jsdelivr.net/npm/@khmyznikov/pwa-install/dist/pwa-install.bundle.js";
 const INSTALL_FALLBACK_TIMEOUT_MS = 8000;
+
+// 安装状态枚举，供 Creator 侧界面直接显示使用
 const STATE_CODE = {
   CHECKING: "checking",
   AVAILABLE: "available",
@@ -24,6 +26,7 @@ let relatedAppsChecked = false;
 let serviceWorkerRegistered = false;
 let serviceWorkerControlled = false;
 
+// 清理安装中的兜底定时器，避免状态长时间卡住
 function clearInstallFallbackTimer() {
   if (installFallbackTimer) {
     window.clearTimeout(installFallbackTimer);
@@ -31,6 +34,7 @@ function clearInstallFallbackTimer() {
   }
 }
 
+// 开始一次安装流程，并设置超时回收
 function beginInstallAttempt() {
   loadingError = null;
   installInProgress = true;
@@ -41,33 +45,40 @@ function beginInstallAttempt() {
   }, INSTALL_FALLBACK_TIMEOUT_MS);
 }
 
+// 结束一次安装流程
 function finishInstallAttempt() {
   clearInstallFallbackTimer();
   installInProgress = false;
 }
 
+// 本地调试地址也允许安装能力检测
 function isLocalDebugHost() {
   return window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
 }
 
+// PWA 相关能力通常要求 https 或 localhost
 function isSecureContextForPwa() {
   return window.location.protocol === "https:" || isLocalDebugHost();
 }
 
+// 判断当前页面是否已经运行在独立模式
 function isStandaloneMode() {
   return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
 }
 
+// 判断是否为安卓 Edge
 function isAndroidEdge() {
   const ua = window.navigator.userAgent || "";
   return /Android/i.test(ua) && /EdgA/i.test(ua);
 }
 
+// 判断是否为安卓 Chrome
 function isAndroidChrome() {
   const ua = window.navigator.userAgent || "";
   return /Android/i.test(ua) && /Chrome/i.test(ua) && !/EdgA/i.test(ua);
 }
 
+// 刷新运行时检测信号，例如 SW 和已安装应用状态
 async function refreshRuntimeSignals() {
   serviceWorkerControlled = Boolean(navigator.serviceWorker?.controller);
 
@@ -95,6 +106,7 @@ async function refreshRuntimeSignals() {
   return emitStateChange();
 }
 
+// 创建 pwa-install 宿主节点，并监听库自身事件
 function createHiddenInstallElement() {
   if (installElement) {
     return installElement;
@@ -136,67 +148,94 @@ function createHiddenInstallElement() {
   return installElement;
 }
 
+// 状态主标题
 function getStatusText(code) {
   switch (code) {
     case STATE_CODE.AVAILABLE:
-      return "当前设备可以安装";
+      // 当前设备可以安装
+      return "This device can install the app";
     case STATE_CODE.INSTALLING:
-      return "正在拉起安装";
+      // 正在拉起安装流程
+      return "Opening the install flow";
     case STATE_CODE.INSTALLED:
-      return "当前已经是已安装状态";
+      // 当前已经是已安装状态
+      return "The app is already installed";
     case STATE_CODE.GUIDE:
-      return "当前浏览器需要显示安装指引";
+      // 当前浏览器需要显示安装指引
+      return "Installation guide is required";
     case STATE_CODE.UNSUPPORTED:
-      return "当前环境暂不支持安装";
+      // 当前环境暂不支持安装
+      return "This environment does not support installation";
     case STATE_CODE.ERROR:
-      return "安装组件加载失败";
+      // 安装组件加载失败
+      return "Failed to load the install component";
     default:
-      return "正在检查安装状态";
+      // 正在检查安装状态
+      return "Checking installation status";
   }
 }
 
+// 安装按钮文案
 function getActionLabel(code) {
   switch (code) {
     case STATE_CODE.AVAILABLE:
-      return "立即安装";
+      // 立即安装
+      return "Install Now";
     case STATE_CODE.INSTALLING:
-      return "安装中...";
+      // 安装中
+      return "Installing...";
     case STATE_CODE.INSTALLED:
-      return "已安装";
+      // 已安装
+      return "Installed";
     case STATE_CODE.GUIDE:
-      return "查看安装指引";
+      // 查看安装指引
+      return "View Guide";
     case STATE_CODE.UNSUPPORTED:
-      return "不可安装";
+      // 当前不可安装
+      return "Unavailable";
     case STATE_CODE.ERROR:
-      return "加载失败";
+      // 加载失败
+      return "Load Failed";
     default:
-      return "检查中...";
+      // 检查中
+      return "Checking...";
   }
 }
 
+// 状态说明文本
 function getDetailMessage(code) {
   switch (code) {
     case STATE_CODE.AVAILABLE:
-      return "点击安装按钮后会触发浏览器安装流程。";
+      // 点击安装按钮后会触发浏览器安装流程
+      return "Tap the install button to trigger the browser install flow.";
     case STATE_CODE.INSTALLING:
-      return "请等待浏览器弹出安装确认。";
+      // 请等待浏览器弹出安装确认
+      return "Please wait for the browser install confirmation.";
     case STATE_CODE.INSTALLED:
-      return "应用已经安装，后续可以直接从桌面或主屏打开。";
+      // 应用已经安装，后续可以直接从桌面或主屏打开
+      return "The app has been installed and can be launched from the desktop or home screen.";
     case STATE_CODE.GUIDE:
       return isAndroidEdge()
-        ? "当前安卓 Edge 没有提供可直接调用的安装提示，请点击浏览器菜单，再选择“添加到手机”或“添加到主屏幕”。"
-        : "iOS Safari 等环境不支持直接拉起安装，会展示手动安装指引。";
+        // 安卓 Edge 没有直接可调用的安装提示，需要走浏览器菜单
+        ? "Android Edge does not expose a direct install prompt. Please open the browser menu and choose Add to phone or Add to home screen."
+        // 当前浏览器无法直接弹出安装提示，需要展示手动安装指引
+        : "This browser cannot open the install prompt directly. A manual install guide will be shown.";
     case STATE_CODE.UNSUPPORTED:
       return isAndroidChrome()
-        ? "当前浏览器还没有发放安装资格。请确认 manifest、service worker 生效，并留意 Chrome 菜单里是否出现“安装应用”而不是“添加到主屏幕”。"
-        : "请确认当前页面运行在 HTTPS 或 localhost，并且 manifest 与 service worker 已生效。";
+        // 浏览器还没有发放安装资格，提示检查菜单与基础条件
+        ? "The browser has not granted install eligibility yet. Please verify the manifest and service worker, and check whether the Chrome menu shows Install app instead of Add to home screen."
+        // 请确认 HTTPS、manifest、service worker 等基础能力是否已生效
+        : "Please make sure the page is running on HTTPS or localhost and that the manifest and service worker are active.";
     case STATE_CODE.ERROR:
-      return "请检查网络是否可以加载 pwa-install 库，或改为本地部署该库。";
+      // 请检查 pwa-install 库是否可以正常加载
+      return "Please check whether the pwa-install library can be loaded from the network, or switch to a local deployment.";
     default:
-      return "页面初始化完成后会自动刷新安装状态。";
+      // 页面初始化完成后会自动刷新安装状态
+      return "The installation status will refresh automatically after initialization.";
   }
 }
 
+// 组合当前所有信号，生成最终状态
 function buildState() {
   const standalone = Boolean(installElement?.isUnderStandaloneMode) || isStandaloneMode();
   const installed = standalone || relatedAppsInstalled;
@@ -244,6 +283,7 @@ function buildState() {
   return currentState;
 }
 
+// 向 Creator 侧派发状态变更事件
 function emitStateChange() {
   const state = buildState();
   window.dispatchEvent(
@@ -255,6 +295,7 @@ function emitStateChange() {
   return state;
 }
 
+// 注册最小 Service Worker，为 PWA 安装资格提供基础能力
 function registerServiceWorker() {
   if (!("serviceWorker" in navigator) || !isSecureContextForPwa()) {
     return;
@@ -272,6 +313,7 @@ function registerServiceWorker() {
   );
 }
 
+// 动态加载 pwa-install 库
 function loadInstallLibrary() {
   if (libraryReadyPromise) {
     return libraryReadyPromise;
@@ -295,6 +337,7 @@ function loadInstallLibrary() {
   return libraryReadyPromise;
 }
 
+// Chromium 安装事件，只在真正具备安装资格时触发
 window.addEventListener("beforeinstallprompt", (event) => {
   event.preventDefault();
   event.stopPropagation();
@@ -308,6 +351,7 @@ window.addEventListener("beforeinstallprompt", (event) => {
   emitStateChange();
 });
 
+// 安装成功后刷新已安装状态
 window.addEventListener("appinstalled", () => {
   finishInstallAttempt();
   relatedAppsInstalled = true;
@@ -315,14 +359,17 @@ window.addEventListener("appinstalled", () => {
   void refreshRuntimeSignals();
 });
 
+// 页面重新显示时刷新状态
 window.addEventListener("pageshow", () => {
   void refreshRuntimeSignals();
 });
 
+// 页面重新获得焦点时刷新状态
 window.addEventListener("focus", () => {
   void refreshRuntimeSignals();
 });
 
+// 暴露给 Creator 侧调用的桥接对象
 window.CCPwaInstallBridge = {
   async ready() {
     await loadInstallLibrary();
@@ -375,6 +422,7 @@ window.CCPwaInstallBridge = {
     await refreshRuntimeSignals();
 
     if (installElement && typeof installElement.showDialog === "function") {
+      // 手动显示 pwa-install 的安装指引弹层
       installElement.showDialog();
     }
 

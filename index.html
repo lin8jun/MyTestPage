@@ -4,12 +4,11 @@
   <meta charset="utf-8">
   <title>slot_portrait_hall</title>
 
-  <link rel="icon" href="icon_192.png" sizes="192x192" type="image/png" />
-  <link rel="manifest" href="manifest.webmanifest" />
-  <!-- <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" /> -->
 
-  <!-- <link rel="apple-touch-icon" href="favicon.ico" /> -->
- <link rel="apple-touch-icon" href="icon_192.png" sizes="192x192" type="image/png" />
+ <link rel="icon" href="icon_192.webp" type="image/webp" />
+ <link rel="manifest" href="manifest.webmanifest" />
+ <link rel="apple-touch-icon" href="icon_192.webp" sizes="192x192" type="image/webp" />
+
 
   <meta name="viewport"
         content="width=device-width,user-scalable=no,initial-scale=1,minimum-scale=1,maximum-scale=1,minimal-ui=true"/>
@@ -45,7 +44,7 @@
       position: fixed; overflow: hidden;
       -webkit-overflow-scrolling: touch;
       user-select: none; -webkit-user-select: none;
-      background-color: #000A1B; /* 防止加载前白屏 */
+      background-color: #000A1B; 
     }
     #GameDiv { width: 100%; height: 100%; }
 
@@ -58,36 +57,15 @@
         height: 100%;
         background-color: #000A1B;
         z-index: 9999;
-        
-        /* 移除之前的 flex 布局，改用相对定位基准 */
         display: block; 
     }
 
-      /* 3. 文本优化：金色霓虹风 (Vegas Fox 主题) */
     .loading-text {
-        /* 2. 绝对定位紧跟 Logo 下方 */
         position: absolute;
-        top: 50%; /* 同样从中心开始 */
+        top: 50%;
         left: 50%;
-        
-        /* 通过 calc 动态计算位置：
-          50% (屏幕中心) + 
-          Logo高度的一半 + 
-          20px 间距 
-        */
-        /* 注意：这里我们通过 transform 处理 X 轴居中，
-          并利用 margin-top 来实现相对于 Logo 中心的偏移 */
         transform: translateX(-50%);
-        /* margin-top: calc((371 / 750 * 50vw) + 20px);  */
-        /* margin-top: 27.46vw; */
-        /* margin-top: calc(206 / 750 * 100vw); */
         margin-top: clamp(100px, calc(206 / 750 * 100vw), 206px);
-        
-        /* 这里的 50vw 是基于 Logo 宽度一半大约等于高度一半的预估（假设Logo是方图或接近比例）
-          如果 Logo 很扁，建议手动给一个固定的 margin-top 值，例如：
-          margin-top: 120px; 
-        */
-
         font-family: Helvetica, Arial, sans-serif;
         font-size: 16px;
         font-weight: 100;
@@ -102,52 +80,30 @@
             0 0 30px #ffd700,
             0 0 40px #ffd700;
         animation: pulseNeon 1.8s infinite;
-        white-space: nowrap; /* 防止文字换行 */
+        white-space: nowrap; 
     }
 
     .loading-logo {
-        /* 1. 绝对定位实现真正的 Y 轴垂直居中 */
         position: absolute;
         top: 50%;
         left: 50%;
-        transform: translate(-50%, -50%); /* 确保图片中心点在屏幕中心 */
-        
+        transform: translate(-50%, -50%); 
         width: calc(476 / 750 * 100vw);
-        /* 2. 宽度保险：最大不能超过设计稿原始宽度 476px */
         max-width: 476px; 
-        
-        /* 3. 高度保险：最大不能超过设计稿原始高度 371px */
         max-height: 371px;
-
         height: auto;
         object-fit: contain;
         filter: drop-shadow(0 0 3px #a855f7) drop-shadow(0 0 6px #a855f7);
-        
-        /* 动画叠加：淡入 */
         opacity: 0;
         animation: logoFadeIn 2.8s ease forwards;
-        
-        margin: 0; /* 清除所有 margin */
+        margin: 0; 
     }
 
-    /* 淡入动画定义 */
     @keyframes logoFadeIn {
       from { opacity: 0; }
       to   { opacity: 1; }
     }
 
-
-
-
-/* @keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
-} */
-    
     @keyframes pulseNeon {
         0% { opacity: 0.6; text-shadow: 0 0 5px #fff, 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 30px #ffd700; }
         50% { opacity: 1; text-shadow: 0 0 7px #fff, 0 0 15px #ff00ff, 0 0 30px #ff00ff, 0 0 50px #ffd700; }
@@ -157,22 +113,16 @@
 
 
   <link rel="stylesheet" type="text/css" href="style.css"/>
-  <script type="module" src="pwa-install-bridge.js"></script>
+  <!-- TODO -->
+  <script type="module" src="pwa-install-bridge.js"></script> 
 
 </head>
 <body>
   <audio id="bgm_global" src="b.mp3"></audio>
-  <!-- <div id="loading-mask">
-    <div class="loading-text">Loading...</div>
-    <div class="loading-spinner"></div>
-  </div> -->
 
   <div id="loading-mask">
-    <!-- 新增：logo图片 -->
-    <img src="logo.png" alt="" class="loading-logo">
-    <!-- 保留：Loading文字 -->
+    <img src="logo.webp" alt="" class="loading-logo">
     <div class="loading-text">Loading...</div>
-    <!-- 移除：loading-spinner 元素 -->
   </div>
 
   <div id="GameDiv" cc_exact_fit_screen="true">
