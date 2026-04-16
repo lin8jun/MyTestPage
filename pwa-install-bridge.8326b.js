@@ -30,7 +30,15 @@ let serviceWorkerControlled = false;
 let storedInstallHint = readInstallHint();
 let installHintClearedAt = 0;
 
+function canPersistInstallHint() {
+  return !isAndroidEdge();
+}
+
 function readInstallHint() {
+  if (!canPersistInstallHint()) {
+    return false;
+  }
+
   try {
     return window.localStorage?.getItem(INSTALL_HINT_STORAGE_KEY) === "1";
   } catch (error) {
@@ -39,6 +47,10 @@ function readInstallHint() {
 }
 
 function writeInstallHint(value) {
+  if (!canPersistInstallHint()) {
+    return;
+  }
+
   try {
     if (!window.localStorage) {
       return;
@@ -407,6 +419,11 @@ function getActionLabel(code) {
       // 查看安装指引
       return "View Guide";
     case STATE_CODE.UNSUPPORTED:
+      if (installHintClearedAt > 0 && isChromiumFamily()) {
+        // 当前页知道安装状态已变化，但还需要一次刷新才能重新拿到安装提示
+        return "Refresh";
+      }
+
       // 当前不可安装
       return "Unavailable";
     case STATE_CODE.ERROR:
@@ -503,7 +520,9 @@ function buildState() {
     actionLabel: getActionLabel(code),
     detailMessage: getDetailMessage(code),
     available: code === STATE_CODE.AVAILABLE,
-    canInstall: code === STATE_CODE.AVAILABLE || code === STATE_CODE.GUIDE,
+    canInstall: code === STATE_CODE.AVAILABLE
+      || code === STATE_CODE.GUIDE
+      || (code === STATE_CODE.UNSUPPORTED && installHintClearedAt > 0 && isChromiumFamily()),
     isStandalone: standalone,
     isApple,
     isSecureContext: isSecureContextForPwa(),
@@ -643,6 +662,11 @@ window.CCPwaInstallBridge = {
   },
 
   async install() {
+    if (!promptEvent && installHintClearedAt > 0 && isChromiumFamily()) {
+      window.location.reload();
+      return emitStateChange();
+    }
+
     if (promptEvent) {
       const activePromptEvent = promptEvent;
       beginInstallAttempt();
