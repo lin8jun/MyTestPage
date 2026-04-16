@@ -269,9 +269,23 @@ function isChromiumFamily() {
   return isAndroidChrome() || isAndroidEdge() || isDesktopChrome() || isDesktopEdge();
 }
 
+// 目前只有 Android Chrome 的相关应用检测结果在本项目场景下相对稳定，可用于主动清除已安装提示
+function supportsReliableRelatedAppsCheck() {
+  return isAndroidChrome();
+}
+
+// 部分浏览器重新出现 beforeinstallprompt，通常意味着已经回到“可重新安装”状态
+function shouldClearInstallHintFromPrompt() {
+  return isAndroidChrome() || isDesktopChrome() || isDesktopEdge();
+}
+
 // 刷新运行时检测信号，例如 SW 和已安装应用状态
 async function refreshRuntimeSignals() {
   serviceWorkerControlled = Boolean(navigator.serviceWorker?.controller);
+
+  if (isStandaloneMode()) {
+    setInstallHint(true);
+  }
 
   if ("serviceWorker" in navigator) {
     try {
@@ -286,6 +300,11 @@ async function refreshRuntimeSignals() {
     try {
       const relatedApps = await navigator.getInstalledRelatedApps();
       relatedAppsInstalled = Array.isArray(relatedApps) && relatedApps.some((app) => app?.platform === "webapp");
+      if (relatedAppsInstalled) {
+        setInstallHint(true);
+      } else if (supportsReliableRelatedAppsCheck() && !isStandaloneMode()) {
+        setInstallHint(false);
+      }
     } catch (error) {
       relatedAppsInstalled = false;
     }
@@ -327,6 +346,7 @@ function createHiddenInstallElement() {
   installElement.addEventListener("pwa-install-available-event", emitStateChange);
   installElement.addEventListener("pwa-install-success-event", () => {
     loadingError = null;
+    setInstallHint(true);
     finishInstallAttempt();
     emitStateChange();
   });
@@ -430,6 +450,11 @@ function getDetailMessage(code) {
       return "This browser cannot open the install prompt directly. A manual install guide will be shown.";
     case STATE_CODE.UNSUPPORTED:
       if (isChromiumFamily()) {
+        if (installHintClearedAt > 0) {
+          // 已安装提示刚刚被撤销，但当前页面还没有重新拿到新的安装提示，常见于卸载图标后的当前页
+          return "The install state changed, but the browser has not exposed a new install prompt to this page yet. Refresh this page and try again.";
+        }
+
         // Chromium 在无痕/InPrivate 窗口下经常不会向页面暴露安装提示，这里给出更准确的说明
         return "The browser did not expose an install prompt to this page. If you are using Incognito or InPrivate browsing, open the site in a regular window and try again.";
       }
@@ -448,7 +473,7 @@ function getDetailMessage(code) {
 // 组合当前所有信号，生成最终状态
 function buildState() {
   const standalone = Boolean(installElement?.isUnderStandaloneMode) || isStandaloneMode();
-  const installed = standalone || relatedAppsInstalled;
+  const installed = standalone || relatedAppsInstalled || storedInstallHint;
   const isApple = Boolean(installElement?.isAppleMobilePlatform) || Boolean(installElement?.isAppleDesktopPlatform);
   const isPromptReady = Boolean(promptEvent);
   const componentInstallAvailable = Boolean(installElement?.isInstallAvailable);
@@ -487,6 +512,7 @@ function buildState() {
     isDialogSupported,
     relatedAppsInstalled,
     relatedAppsChecked,
+    storedInstallHint,
     serviceWorkerRegistered,
     serviceWorkerControlled,
     errorMessage: loadingError ? String(loadingError.message || loadingError) : "",
@@ -559,6 +585,11 @@ window.addEventListener("beforeinstallprompt", (event) => {
   event.preventDefault();
   event.stopPropagation();
   event.stopImmediatePropagation();
+
+  if (storedInstallHint && shouldClearInstallHintFromPrompt() && !isStandaloneMode() && !relatedAppsInstalled) {
+    setInstallHint(false);
+  }
+
   promptEvent = event;
 
   if (installElement) {
@@ -572,6 +603,7 @@ window.addEventListener("beforeinstallprompt", (event) => {
 window.addEventListener("appinstalled", () => {
   finishInstallAttempt();
   relatedAppsInstalled = true;
+  setInstallHint(true);
   emitStateChange();
   void refreshRuntimeSignals();
 });
@@ -631,6 +663,13 @@ window.CCPwaInstallBridge = {
 
       return Promise.resolve(promptResult)
         .then(() => activePromptEvent.userChoice || null)
+        .then((choice) => {
+          if (choice?.outcome === "accepted") {
+            setInstallHint(true);
+          }
+
+          return choice;
+        })
         .catch((error) => {
           loadingError = error;
           return null;
