@@ -7,7 +7,7 @@
 
  <link id="cc-pwa-icon-192" rel="icon" href="icon_192.5dd0a.webp" type="image/webp" />
  <link id="cc-pwa-icon-512" rel="alternate" href="icon_512.e6761.webp" type="image/webp" />
- <link id="cc-pwa-sw" rel="alternate" href="sw.5045d.js" type="application/javascript" />
+ <link id="cc-pwa-sw" rel="alternate" href="sw.012e5.js" type="application/javascript" />
  <link rel="apple-touch-icon" href="icon_192.5dd0a.webp" sizes="192x192" type="image/webp" />
 
 
@@ -20,72 +20,6 @@
   <meta name="format-detection" content="telephone=no">
   <meta name="apple-mobile-web-app-title" content="Vegas Fox">
   <meta name="theme-color" content="#000A1B">
-
-  <script>
-    // 运行时根据构建后的真实哈希文件名生成 manifest，避免 MD5 缓存后路径失效
-    (function () {
-      var runtimeKey = "__CC_PWA_RUNTIME__";
-      var icon192Link = document.getElementById("cc-pwa-icon-192");
-      var icon512Link = document.getElementById("cc-pwa-icon-512");
-      var swLink = document.getElementById("cc-pwa-sw");
-      var titleMeta = document.querySelector('meta[name="apple-mobile-web-app-title"]');
-      var themeMeta = document.querySelector('meta[name="theme-color"]');
-      var scopeUrl = new URL("index.47b2b.js/", window.location.href);
-      var startUrl = new URL("./index.html", window.location.href);
-      var appTitle = titleMeta && titleMeta.content ? titleMeta.content : (document.title || "slot_portrait_hall");
-      var themeColor = themeMeta && themeMeta.content ? themeMeta.content : "#000A1B";
-      var icons = [];
-
-      if (icon192Link && icon192Link.href) {
-        icons.push({
-          src: icon192Link.href,
-          sizes: "192x192",
-          type: "image/webp",
-          purpose: "any maskable"
-        });
-      }
-
-      if (icon512Link && icon512Link.href) {
-        icons.push({
-          src: icon512Link.href,
-          sizes: "512x512",
-          type: "image/webp",
-          purpose: "any maskable"
-        });
-      }
-
-      var manifest = {
-        id: scopeUrl.href,
-        name: appTitle,
-        short_name: appTitle,
-        start_url: startUrl.href,
-        scope: scopeUrl.href,
-        display: "standalone",
-        display_override: ["standalone", "minimal-ui", "browser"],
-        background_color: themeColor,
-        theme_color: themeColor,
-        icons: icons
-      };
-
-      var manifestBlob = new Blob(
-        [JSON.stringify(manifest)],
-        { type: "application/manifest+json" }
-      );
-      var manifestUrl = URL.createObjectURL(manifestBlob);
-      var manifestLink = document.createElement("link");
-      manifestLink.id = "cc-pwa-manifest-runtime";
-      manifestLink.rel = "manifest";
-      manifestLink.href = manifestUrl;
-      document.head.appendChild(manifestLink);
-
-      window[runtimeKey] = {
-        manifestUrl: manifestUrl,
-        serviceWorkerUrl: swLink && swLink.href ? swLink.href : "",
-        scopeUrl: scopeUrl.href,
-        startUrl: startUrl.href
-      };
-    })();
-  </script>
 
   <!-- force webkit on 360 -->
   <meta name="renderer" content="webkit"/>
@@ -181,7 +115,7 @@
 
   <link rel="stylesheet" type="text/css" href="style.f76d1.css"/>
   <!-- TODO -->
-  <script type="module" src="pwa-install-bridge.ea1ef.js"></script> 
+  <script type="module" src="pwa-install-bridge.208ef.js"></script> 
 
 </head>
 <body>
@@ -211,7 +145,7 @@
 <script src="src/import-map.17abe.json" type="systemjs-importmap" charset="utf-8"> </script>
 
 <script>
-    System.import('./index.47b2b.js').catch(function(err) { console.error(err); })
+    System.import('./index.5e582.js').catch(function(err) { console.error(err); })
 </script>
 
 

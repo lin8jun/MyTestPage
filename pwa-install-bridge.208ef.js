@@ -27,6 +27,107 @@ let relatedAppsChecked = false;
 let serviceWorkerRegistered = false;
 let serviceWorkerControlled = false;
 
+function getDocumentTitle() {
+  const titleMeta = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+  if (titleMeta?.content) {
+    return titleMeta.content;
+  }
+
+  return document.title || "PWA App";
+}
+
+function getThemeColor() {
+  const themeMeta = document.querySelector('meta[name="theme-color"]');
+  return themeMeta?.content || "#000A1B";
+}
+
+function getAbsolutePageUrl() {
+  const pageUrl = new URL(window.location.href);
+  pageUrl.hash = "";
+  return pageUrl;
+}
+
+function getSlashCharacter() {
+  return String.fromCharCode(47);
+}
+
+function getRuntimeScopeUrl() {
+  const pageUrl = getAbsolutePageUrl();
+  const scopePath = pageUrl.pathname.replace(/[^/]*$/, "");
+  return new URL(scopePath || getSlashCharacter(), pageUrl.origin);
+}
+
+function getRuntimeStartUrl() {
+  const pageUrl = getAbsolutePageUrl();
+  return new URL(pageUrl.pathname + pageUrl.search, pageUrl.origin);
+}
+
+function getIconDefinition(elementId, sizes) {
+  const linkElement = document.getElementById(elementId);
+  if (!linkElement?.href) {
+    return null;
+  }
+
+  return {
+    src: linkElement.href,
+    sizes,
+    type: linkElement.type || "image/webp",
+    purpose: "any maskable",
+  };
+}
+
+function ensureRuntimeManifest() {
+  const existingManifestLink = document.getElementById("cc-pwa-manifest-runtime");
+  if (existingManifestLink?.href) {
+    const runtimeConfig = getRuntimeConfig() || {};
+    window[RUNTIME_CONFIG_KEY] = {
+      ...runtimeConfig,
+      manifestUrl: existingManifestLink.href,
+      serviceWorkerUrl: getServiceWorkerScriptUrl(),
+      scopeUrl: getRuntimeScopeUrl().href,
+      startUrl: getRuntimeStartUrl().href,
+    };
+    return existingManifestLink.href;
+  }
+
+  const manifestIcons = [
+    getIconDefinition("cc-pwa-icon-192", "192x192"),
+    getIconDefinition("cc-pwa-icon-512", "512x512"),
+  ].filter(Boolean);
+  const scopeUrl = getRuntimeScopeUrl();
+  const startUrl = getRuntimeStartUrl();
+  const manifest = {
+    id: scopeUrl.href,
+    name: getDocumentTitle(),
+    short_name: getDocumentTitle(),
+    start_url: startUrl.href,
+    scope: scopeUrl.href,
+    display: "standalone",
+    display_override: ["standalone", "minimal-ui", "browser"],
+    background_color: getThemeColor(),
+    theme_color: getThemeColor(),
+    icons: manifestIcons,
+  };
+  const manifestBlob = new Blob([JSON.stringify(manifest)], {
+    type: "application/manifest+json",
+  });
+  const manifestUrl = URL.createObjectURL(manifestBlob);
+  const manifestLink = document.createElement("link");
+  manifestLink.id = "cc-pwa-manifest-runtime";
+  manifestLink.rel = "manifest";
+  manifestLink.href = manifestUrl;
+  document.head.appendChild(manifestLink);
+
+  window[RUNTIME_CONFIG_KEY] = {
+    manifestUrl,
+    serviceWorkerUrl: getServiceWorkerScriptUrl(),
+    scopeUrl: scopeUrl.href,
+    startUrl: startUrl.href,
+  };
+
+  return manifestUrl;
+}
+
 function getRuntimeConfig() {
   return window[RUNTIME_CONFIG_KEY] || null;
 }
@@ -42,7 +143,22 @@ function getServiceWorkerScriptUrl() {
     return helperLink.href;
   }
 
-  return "./sw.5045d.js";
+  return "./sw.012e5.js";
+}
+
+function getManifestUrl() {
+  ensureRuntimeManifest();
+  const runtimeConfig = getRuntimeConfig();
+  if (runtimeConfig?.manifestUrl) {
+    return runtimeConfig.manifestUrl;
+  }
+
+  const manifestLink = document.querySelector('link[rel="manifest"]');
+  if (manifestLink?.href) {
+    return manifestLink.href;
+  }
+
+  return "";
 }
 
 // 清理安装中的兜底定时器，避免状态长时间卡住
@@ -91,6 +207,12 @@ function isAndroidEdge() {
   return /Android/i.test(ua) && /EdgA/i.test(ua);
 }
 
+// 判断是否为桌面版 Edge
+function isDesktopEdge() {
+  const ua = window.navigator.userAgent || "";
+  return !/Android/i.test(ua) && /Edg\//i.test(ua);
+}
+
 // 判断是否为安卓 Chrome
 function isAndroidChrome() {
   const ua = window.navigator.userAgent || "";
@@ -136,6 +258,11 @@ function createHiddenInstallElement() {
   installElement.setAttribute("manual-apple", "true");
   installElement.setAttribute("manual-chrome", "true");
   installElement.setAttribute("use-local-storage", "true");
+  const manifestUrl = getManifestUrl();
+  if (manifestUrl) {
+    // 显式传入运行时 manifest，避免 pwa-install 回退去请求根路径的 /manifest.json
+    installElement.setAttribute("manifest-url", manifestUrl);
+  }
   installElement.style.position = "fixed";
   installElement.style.width = "0";
   installElement.style.height = "0";
@@ -234,11 +361,18 @@ function getDetailMessage(code) {
       // 应用已经安装，后续可以直接从桌面或主屏打开
       return "The app has been installed and can be launched from the desktop or home screen.";
     case STATE_CODE.GUIDE:
-      return isAndroidEdge()
+      if (isAndroidEdge()) {
         // 安卓 Edge 没有直接可调用的安装提示，需要走浏览器菜单
-        ? "Android Edge does not expose a direct install prompt. Please open the browser menu and choose Add to phone or Add to home screen."
-        // 当前浏览器无法直接弹出安装提示，需要展示手动安装指引
-        : "This browser cannot open the install prompt directly. A manual install guide will be shown.";
+        return "Android Edge does not expose a direct install prompt. Please open the browser menu and choose Add to phone or Add to home screen.";
+      }
+
+      if (isDesktopEdge()) {
+        // Windows Edge 可通过地址栏安装图标或浏览器菜单安装
+        return "Microsoft Edge can install this app from the App available icon in the address bar or from the browser menu. A manual install guide will also be available.";
+      }
+
+      // 当前浏览器无法直接弹出安装提示，需要展示手动安装指引
+      return "This browser cannot open the install prompt directly. A manual install guide will be shown.";
     case STATE_CODE.UNSUPPORTED:
       return isAndroidChrome()
         // 浏览器还没有发放安装资格，提示检查菜单与基础条件
@@ -260,7 +394,9 @@ function buildState() {
   const installed = standalone || relatedAppsInstalled;
   const isApple = Boolean(installElement?.isAppleMobilePlatform) || Boolean(installElement?.isAppleDesktopPlatform);
   const isPromptReady = Boolean(promptEvent);
-  const isInstallAvailable = isPromptReady;
+  const componentInstallAvailable = Boolean(installElement?.isInstallAvailable);
+  const isDialogSupported = typeof installElement?.showDialog === "function";
+  const isInstallAvailable = isPromptReady || componentInstallAvailable;
 
   let code = STATE_CODE.CHECKING;
 
@@ -270,9 +406,9 @@ function buildState() {
     code = STATE_CODE.INSTALLED;
   } else if (installInProgress) {
     code = STATE_CODE.INSTALLING;
-  } else if (isPromptReady) {
+  } else if (isInstallAvailable) {
     code = STATE_CODE.AVAILABLE;
-  } else if (isApple || isAndroidEdge()) {
+  } else if (isDialogSupported && (isApple || isAndroidEdge() || isDesktopEdge())) {
     code = STATE_CODE.GUIDE;
   } else if (importReady) {
     code = STATE_CODE.UNSUPPORTED;
@@ -290,7 +426,7 @@ function buildState() {
     isSecureContext: isSecureContextForPwa(),
     hasPromptEvent: isPromptReady,
     isInstallAvailable,
-    isDialogSupported: typeof installElement?.showDialog === "function",
+    isDialogSupported,
     relatedAppsInstalled,
     relatedAppsChecked,
     serviceWorkerRegistered,
@@ -417,7 +553,7 @@ window.CCPwaInstallBridge = {
       return emitStateChange();
     }
 
-    if (promptEvent && installElement.isInstallAvailable) {
+    if (promptEvent || installElement.isInstallAvailable) {
       beginInstallAttempt();
       emitStateChange();
 
@@ -454,6 +590,7 @@ window.CCPwaInstallBridge = {
 };
 
 registerServiceWorker();
+ensureRuntimeManifest();
 emitStateChange();
 loadInstallLibrary();
 void refreshRuntimeSignals();

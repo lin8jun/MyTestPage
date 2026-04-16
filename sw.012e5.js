@@ -30,8 +30,12 @@ function shouldHandleRequest(requestUrl) {
   return requestUrl.origin === self.location.origin;
 }
 
+function shouldBypassCache(request) {
+  return request.headers.has("range");
+}
+
 function shouldCacheResponse(response) {
-  return Boolean(response) && response.ok;
+  return Boolean(response) && response.status === 200 && !response.headers.has("content-range");
 }
 
 function cacheResponse(request, response) {
@@ -54,6 +58,11 @@ self.addEventListener("fetch", (event) => {
 
   const requestUrl = new URL(event.request.url);
   if (!shouldHandleRequest(requestUrl)) {
+    return;
+  }
+
+  if (shouldBypassCache(event.request)) {
+    event.respondWith(fetch(event.request));
     return;
   }
 
