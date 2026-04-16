@@ -143,7 +143,7 @@ function getServiceWorkerScriptUrl() {
     return helperLink.href;
   }
 
-  return "./sw.012e5.js";
+  return "./sw.427eb.js";
 }
 
 function getManifestUrl() {
@@ -214,10 +214,21 @@ function isAndroidChrome() {
   return /Android/i.test(ua) && /Chrome/i.test(ua) && !/EdgA/i.test(ua);
 }
 
+// 判断是否为桌面版 Chrome
+function isDesktopChrome() {
+  const ua = window.navigator.userAgent || "";
+  return !/Android/i.test(ua) && /Chrome\//i.test(ua) && !/Edg\//i.test(ua);
+}
+
 // 判断是否为 Firefox 桌面端
 function isDesktopFirefox() {
   const ua = window.navigator.userAgent || "";
   return !/Android/i.test(ua) && /Firefox\//i.test(ua);
+}
+
+// 判断是否为 Chromium 系浏览器
+function isChromiumFamily() {
+  return isAndroidChrome() || isAndroidEdge() || isDesktopChrome() || isDesktopEdge();
 }
 
 // 刷新运行时检测信号，例如 SW 和已安装应用状态
@@ -380,11 +391,13 @@ function getDetailMessage(code) {
       // 当前浏览器无法直接弹出安装提示，需要展示手动安装指引
       return "This browser cannot open the install prompt directly. A manual install guide will be shown.";
     case STATE_CODE.UNSUPPORTED:
-      return isAndroidChrome()
-        // 浏览器还没有发放安装资格，提示检查菜单与基础条件
-        ? "The browser has not granted install eligibility yet. Please verify the manifest and service worker, and check whether the Chrome menu shows Install app instead of Add to home screen."
-        // 请确认 HTTPS、manifest、service worker 等基础能力是否已生效
-        : "Please make sure the page is running on HTTPS or localhost and that the manifest and service worker are active.";
+      if (isChromiumFamily()) {
+        // Chromium 在无痕/InPrivate 窗口下经常不会向页面暴露安装提示，这里给出更准确的说明
+        return "The browser did not expose an install prompt to this page. If you are using Incognito or InPrivate browsing, open the site in a regular window and try again.";
+      }
+
+      // 请确认 HTTPS、manifest、service worker 等基础能力是否已生效
+      return "Please make sure the page is running on HTTPS or localhost and that the manifest and service worker are active.";
     case STATE_CODE.ERROR:
       // 请检查 pwa-install 库是否可以正常加载
       return "Please check whether the pwa-install library can be loaded from the network, or switch to a local deployment.";
@@ -402,7 +415,8 @@ function buildState() {
   const isPromptReady = Boolean(promptEvent);
   const componentInstallAvailable = Boolean(installElement?.isInstallAvailable);
   const isDialogSupported = typeof installElement?.showDialog === "function";
-  const isInstallAvailable = isPromptReady || componentInstallAvailable;
+  // Chromium 自定义安装按钮最终依赖 beforeinstallprompt；仅组件判断可安装并不代表页面真能拉起安装弹窗
+  const isInstallAvailable = isChromiumFamily() ? isPromptReady : (isPromptReady || componentInstallAvailable);
 
   let code = STATE_CODE.CHECKING;
 
@@ -414,7 +428,7 @@ function buildState() {
     code = STATE_CODE.INSTALLING;
   } else if (isInstallAvailable) {
     code = STATE_CODE.AVAILABLE;
-  } else if (isDialogSupported && (isApple || isAndroidEdge() || isDesktopEdge() || isDesktopFirefox())) {
+  } else if (isDialogSupported && (isApple || isAndroidEdge() || isDesktopEdge())) {
     code = STATE_CODE.GUIDE;
   } else if (importReady) {
     code = STATE_CODE.UNSUPPORTED;
@@ -590,7 +604,7 @@ window.CCPwaInstallBridge = {
         .then(() => emitStateChange());
     }
 
-    if (installElement?.isInstallAvailable) {
+    if (installElement?.isInstallAvailable && !isChromiumFamily()) {
       beginInstallAttempt();
       emitStateChange();
 
