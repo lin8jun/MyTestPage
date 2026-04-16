@@ -534,6 +534,12 @@ window.addEventListener("focus", () => {
   void refreshRuntimeSignals();
 });
 
+if (navigator.serviceWorker) {
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    void refreshRuntimeSignals();
+  });
+}
+
 // 暴露给 Creator 侧调用的桥接对象
 window.CCPwaInstallBridge = {
   async ready() {
@@ -553,48 +559,64 @@ window.CCPwaInstallBridge = {
   },
 
   async install() {
+    if (promptEvent) {
+      const activePromptEvent = promptEvent;
+      beginInstallAttempt();
+      emitStateChange();
+
+      promptEvent = null;
+      if (installElement) {
+        installElement.externalPromptEvent = null;
+      }
+
+      let promptResult = null;
+      try {
+        // 这里必须尽量同步触发 prompt()，否则浏览器会丢失用户点击手势，导致安卓端无法拉起安装弹窗
+        promptResult = activePromptEvent.prompt();
+      } catch (error) {
+        loadingError = error;
+      }
+
+      return Promise.resolve(promptResult)
+        .then(() => activePromptEvent.userChoice || null)
+        .catch((error) => {
+          loadingError = error;
+          return null;
+        })
+        .finally(async () => {
+          finishInstallAttempt();
+          await refreshRuntimeSignals();
+        })
+        .then(() => emitStateChange());
+    }
+
+    if (installElement?.isInstallAvailable) {
+      beginInstallAttempt();
+      emitStateChange();
+
+      let installResult = null;
+      try {
+        // 与 beforeinstallprompt 同理，组件安装也要尽量在点击手势所属调用栈内立即触发
+        installResult = installElement.install();
+      } catch (error) {
+        loadingError = error;
+      }
+
+      return Promise.resolve(installResult)
+        .catch((error) => {
+          loadingError = error;
+          return null;
+        })
+        .finally(async () => {
+          finishInstallAttempt();
+          await refreshRuntimeSignals();
+        })
+        .then(() => emitStateChange());
+    }
+
     await loadInstallLibrary();
 
     if (!installElement) {
-      return emitStateChange();
-    }
-
-    if (promptEvent) {
-      beginInstallAttempt();
-      emitStateChange();
-
-      try {
-        await promptEvent.prompt();
-        if (promptEvent.userChoice) {
-          await promptEvent.userChoice;
-        }
-      } catch (error) {
-        loadingError = error;
-      } finally {
-        promptEvent = null;
-        if (installElement) {
-          installElement.externalPromptEvent = null;
-        }
-        finishInstallAttempt();
-        await refreshRuntimeSignals();
-      }
-
-      return emitStateChange();
-    }
-
-    if (installElement.isInstallAvailable) {
-      beginInstallAttempt();
-      emitStateChange();
-
-      try {
-        await Promise.resolve(installElement.install());
-      } catch (error) {
-        loadingError = error;
-      } finally {
-        finishInstallAttempt();
-        await refreshRuntimeSignals();
-      }
-
       return emitStateChange();
     }
 
