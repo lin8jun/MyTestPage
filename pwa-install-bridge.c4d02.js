@@ -77,7 +77,7 @@ function getIconDefinition(elementId, sizes) {
 }
 
 function ensureRuntimeManifest() {
-  const existingManifestLink = document.getElementById("cc-pwa-manifest-runtime");
+  const existingManifestLink = document.querySelector('link[rel="manifest"]');
   if (existingManifestLink?.href) {
     const runtimeConfig = getRuntimeConfig() || {};
     window[RUNTIME_CONFIG_KEY] = {
@@ -147,18 +147,13 @@ function getServiceWorkerScriptUrl() {
 }
 
 function getManifestUrl() {
-  ensureRuntimeManifest();
-  const runtimeConfig = getRuntimeConfig();
-  if (runtimeConfig?.manifestUrl) {
-    return runtimeConfig.manifestUrl;
-  }
-
   const manifestLink = document.querySelector('link[rel="manifest"]');
   if (manifestLink?.href) {
     return manifestLink.href;
   }
 
-  return "";
+  const runtimeManifestUrl = ensureRuntimeManifest();
+  return runtimeManifestUrl || "";
 }
 
 // 清理安装中的兜底定时器，避免状态长时间卡住
@@ -219,6 +214,12 @@ function isAndroidChrome() {
   return /Android/i.test(ua) && /Chrome/i.test(ua) && !/EdgA/i.test(ua);
 }
 
+// 判断是否为 Firefox 桌面端
+function isDesktopFirefox() {
+  const ua = window.navigator.userAgent || "";
+  return !/Android/i.test(ua) && /Firefox\//i.test(ua);
+}
+
 // 刷新运行时检测信号，例如 SW 和已安装应用状态
 async function refreshRuntimeSignals() {
   serviceWorkerControlled = Boolean(navigator.serviceWorker?.controller);
@@ -256,7 +257,7 @@ function createHiddenInstallElement() {
   installElement = document.createElement("pwa-install");
   installElement.id = "cc-pwa-install";
   installElement.setAttribute("manual-apple", "true");
-  installElement.setAttribute("manual-chrome", "true");
+  installElement.setAttribute("disable-chrome", "true");
   installElement.setAttribute("use-local-storage", "true");
   const manifestUrl = getManifestUrl();
   if (manifestUrl) {
@@ -371,6 +372,11 @@ function getDetailMessage(code) {
         return "Microsoft Edge can install this app from the App available icon in the address bar or from the browser menu. A manual install guide will also be available.";
       }
 
+      if (isDesktopFirefox()) {
+        // Firefox 桌面端默认不提供原生 PWA 安装入口
+        return "Firefox does not provide a built-in PWA install flow on desktop. Please use a Chromium-based browser or a Firefox PWA extension.";
+      }
+
       // 当前浏览器无法直接弹出安装提示，需要展示手动安装指引
       return "This browser cannot open the install prompt directly. A manual install guide will be shown.";
     case STATE_CODE.UNSUPPORTED:
@@ -408,7 +414,7 @@ function buildState() {
     code = STATE_CODE.INSTALLING;
   } else if (isInstallAvailable) {
     code = STATE_CODE.AVAILABLE;
-  } else if (isDialogSupported && (isApple || isAndroidEdge() || isDesktopEdge())) {
+  } else if (isDialogSupported && (isApple || isAndroidEdge() || isDesktopEdge() || isDesktopFirefox())) {
     code = STATE_CODE.GUIDE;
   } else if (importReady) {
     code = STATE_CODE.UNSUPPORTED;
@@ -553,7 +559,30 @@ window.CCPwaInstallBridge = {
       return emitStateChange();
     }
 
-    if (promptEvent || installElement.isInstallAvailable) {
+    if (promptEvent) {
+      beginInstallAttempt();
+      emitStateChange();
+
+      try {
+        await promptEvent.prompt();
+        if (promptEvent.userChoice) {
+          await promptEvent.userChoice;
+        }
+      } catch (error) {
+        loadingError = error;
+      } finally {
+        promptEvent = null;
+        if (installElement) {
+          installElement.externalPromptEvent = null;
+        }
+        finishInstallAttempt();
+        await refreshRuntimeSignals();
+      }
+
+      return emitStateChange();
+    }
+
+    if (installElement.isInstallAvailable) {
       beginInstallAttempt();
       emitStateChange();
 
@@ -590,7 +619,6 @@ window.CCPwaInstallBridge = {
 };
 
 registerServiceWorker();
-ensureRuntimeManifest();
 emitStateChange();
 loadInstallLibrary();
 void refreshRuntimeSignals();
