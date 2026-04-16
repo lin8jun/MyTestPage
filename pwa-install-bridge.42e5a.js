@@ -2,6 +2,7 @@ const BRIDGE_EVENT_NAME = "cc-pwa-install-state-change";
 const BRIDGE_SCRIPT_URL = "https://cdn.jsdelivr.net/npm/@khmyznikov/pwa-install/dist/pwa-install.bundle.js";
 const INSTALL_FALLBACK_TIMEOUT_MS = 8000;
 const RUNTIME_CONFIG_KEY = "__CC_PWA_RUNTIME__";
+const INSTALL_HINT_STORAGE_KEY = "cc-pwa-installed-hint";
 
 // 安装状态枚举，供 Creator 侧界面直接显示使用
 const STATE_CODE = {
@@ -26,6 +27,43 @@ let relatedAppsInstalled = false;
 let relatedAppsChecked = false;
 let serviceWorkerRegistered = false;
 let serviceWorkerControlled = false;
+let storedInstallHint = readInstallHint();
+let installHintClearedAt = 0;
+
+function readInstallHint() {
+  try {
+    return window.localStorage?.getItem(INSTALL_HINT_STORAGE_KEY) === "1";
+  } catch (error) {
+    return false;
+  }
+}
+
+function writeInstallHint(value) {
+  try {
+    if (!window.localStorage) {
+      return;
+    }
+
+    if (value) {
+      window.localStorage.setItem(INSTALL_HINT_STORAGE_KEY, "1");
+    } else {
+      window.localStorage.removeItem(INSTALL_HINT_STORAGE_KEY);
+    }
+  } catch (error) {
+    // 本地存储不可用时，只保留当前会话内的兜底状态
+  }
+}
+
+function setInstallHint(value) {
+  const nextValue = Boolean(value);
+  if (storedInstallHint === nextValue) {
+    return;
+  }
+
+  storedInstallHint = nextValue;
+  writeInstallHint(nextValue);
+  installHintClearedAt = nextValue ? 0 : Date.now();
+}
 
 function getDocumentTitle() {
   const titleMeta = document.querySelector('meta[name="apple-mobile-web-app-title"]');
