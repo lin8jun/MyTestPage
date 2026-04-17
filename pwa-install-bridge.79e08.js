@@ -333,11 +333,10 @@ function createHiddenInstallElement() {
     installElement.setAttribute("manifest-url", manifestUrl);
   }
   installElement.style.position = "fixed";
-  installElement.style.width = "0";
-  installElement.style.height = "0";
-  installElement.style.opacity = "0";
-  installElement.style.pointerEvents = "none";
-  installElement.style.zIndex = "-1";
+  installElement.style.inset = "0";
+  installElement.style.width = "100vw";
+  installElement.style.height = "100vh";
+  installElement.style.zIndex = "2147483647";
 
   if (promptEvent) {
     installElement.externalPromptEvent = promptEvent;
@@ -746,7 +745,7 @@ window.CCPwaInstallBridge = {
     }
 
     if (typeof installElement.showDialog === "function") {
-      installElement.showDialog();
+      installElement.showDialog(true);
     }
 
     return emitStateChange();
@@ -758,7 +757,7 @@ window.CCPwaInstallBridge = {
 
     if (installElement && typeof installElement.showDialog === "function") {
       // 手动显示 pwa-install 的安装指引弹层
-      installElement.showDialog();
+      installElement.showDialog(true);
     }
 
     return emitStateChange();
