@@ -333,9 +333,11 @@ function createHiddenInstallElement() {
     installElement.setAttribute("manifest-url", manifestUrl);
   }
   installElement.style.position = "fixed";
-  installElement.style.inset = "0";
-  installElement.style.width = "100vw";
-  installElement.style.height = "100vh";
+  installElement.style.left = "0";
+  installElement.style.top = "0";
+  installElement.style.width = "0";
+  installElement.style.height = "0";
+  installElement.style.overflow = "visible";
   installElement.style.zIndex = "2147483647";
 
   if (promptEvent) {
