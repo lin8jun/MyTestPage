@@ -368,11 +368,6 @@ function createHiddenInstallElement() {
 
 // 状态主标题
 function getStatusText(code) {
-  if (code === STATE_CODE.INSTALLED && isAndroidEdge() && storedInstallHint && !isStandaloneMode()) {
-    // 安卓 Edge 只能较粗略地识别主屏快捷方式，这里给出更贴近事实的标题
-    return "The shortcut was added previously";
-  }
-
   switch (code) {
     case STATE_CODE.AVAILABLE:
       // 当前设备可以安装
@@ -400,11 +395,6 @@ function getStatusText(code) {
 
 // 安装按钮文案
 function getActionLabel(code) {
-  if (code === STATE_CODE.INSTALLED && isAndroidEdge() && storedInstallHint && !isStandaloneMode()) {
-    // 允许用户在确认已卸载图标后主动重新检查一次状态
-    return "Check Again";
-  }
-
   switch (code) {
     case STATE_CODE.AVAILABLE:
       // 立即安装
@@ -419,11 +409,6 @@ function getActionLabel(code) {
       // 查看安装指引
       return "View Guide";
     case STATE_CODE.UNSUPPORTED:
-      if (installHintClearedAt > 0 && isChromiumFamily()) {
-        // 当前页知道安装状态已变化，但还需要一次刷新才能重新拿到安装提示
-        return "Refresh";
-      }
-
       // 当前不可安装
       return "Unavailable";
     case STATE_CODE.ERROR:
@@ -437,11 +422,6 @@ function getActionLabel(code) {
 
 // 状态说明文本
 function getDetailMessage(code) {
-  if (code === STATE_CODE.INSTALLED && isAndroidEdge() && storedInstallHint && !isStandaloneMode()) {
-    // Edge Android 对主屏快捷方式没有可靠的已安装检测，这里明确告诉用户如何恢复重新安装
-    return "Android Edge may keep reporting this shortcut as installed even after the browser can still show an install prompt. If you already removed the home screen icon, tap Check Again to refresh the status.";
-  }
-
   switch (code) {
     case STATE_CODE.AVAILABLE:
       // 点击安装按钮后会触发浏览器安装流程
@@ -472,11 +452,6 @@ function getDetailMessage(code) {
       return "This browser cannot open the install prompt directly. A manual install guide will be shown.";
     case STATE_CODE.UNSUPPORTED:
       if (isChromiumFamily()) {
-        if (installHintClearedAt > 0) {
-          // 已安装提示刚刚被撤销，但当前页面还没有重新拿到新的安装提示，常见于卸载图标后的当前页
-          return "The install state changed, but the browser has not exposed a new install prompt to this page yet. Refresh this page and try again.";
-        }
-
         // Chromium 在无痕/InPrivate 窗口下经常不会向页面暴露安装提示，这里给出更准确的说明
         return "The browser did not expose an install prompt to this page. If you are using Incognito or InPrivate browsing, open the site in a regular window and try again.";
       }
@@ -495,11 +470,11 @@ function getDetailMessage(code) {
 // 组合当前所有信号，生成最终状态
 function buildState() {
   const standalone = Boolean(installElement?.isUnderStandaloneMode) || isStandaloneMode();
-  const installed = standalone || relatedAppsInstalled || storedInstallHint;
   const isApple = Boolean(installElement?.isAppleMobilePlatform) || Boolean(installElement?.isAppleDesktopPlatform);
   const isPromptReady = Boolean(promptEvent);
   const componentInstallAvailable = Boolean(installElement?.isInstallAvailable);
   const isDialogSupported = typeof installElement?.showDialog === "function";
+  const installed = standalone || relatedAppsInstalled || (storedInstallHint && !isPromptReady);
   // Chromium 自定义安装按钮最终依赖 beforeinstallprompt；仅组件判断可安装并不代表页面真能拉起安装弹窗
   const isInstallAvailable = isChromiumFamily() ? isPromptReady : (isPromptReady || componentInstallAvailable);
 
@@ -525,10 +500,7 @@ function buildState() {
     actionLabel: getActionLabel(code),
     detailMessage: getDetailMessage(code),
     available: code === STATE_CODE.AVAILABLE,
-    canInstall: code === STATE_CODE.AVAILABLE
-      || code === STATE_CODE.GUIDE
-      || (code === STATE_CODE.INSTALLED && isAndroidEdge() && storedInstallHint && !standalone)
-      || (code === STATE_CODE.UNSUPPORTED && installHintClearedAt > 0 && isChromiumFamily()),
+    canInstall: code === STATE_CODE.AVAILABLE || code === STATE_CODE.GUIDE,
     isStandalone: standalone,
     isApple,
     isSecureContext: isSecureContextForPwa(),
@@ -668,17 +640,6 @@ window.CCPwaInstallBridge = {
   },
 
   async install() {
-    if (isAndroidEdge() && storedInstallHint && !isStandaloneMode()) {
-      setInstallHint(false);
-      await refreshRuntimeSignals();
-      return emitStateChange();
-    }
-
-    if (!promptEvent && installHintClearedAt > 0 && isChromiumFamily()) {
-      window.location.reload();
-      return emitStateChange();
-    }
-
     if (promptEvent) {
       const activePromptEvent = promptEvent;
       beginInstallAttempt();
