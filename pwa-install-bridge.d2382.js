@@ -29,6 +29,15 @@ let serviceWorkerRegistered = false;
 let serviceWorkerControlled = false;
 let storedInstallHint = readInstallHint();
 let installHintClearedAt = 0;
+let customDialogRoot = null;
+let customDialogBackdrop = null;
+let customDialogSheet = null;
+let customDialogInstallButton = null;
+let customDialogCloseButton = null;
+let customDialogTitle = null;
+let customDialogMessage = null;
+let customDialogMeta = null;
+let customDialogVisible = false;
 
 function readInstallHint() {
   try {
@@ -194,6 +203,305 @@ function getManifestUrl() {
   return runtimeManifestUrl || "";
 }
 
+function ensureCustomDialogStyles() {
+  if (document.getElementById("cc-pwa-gallery-style")) {
+    return;
+  }
+
+  const styleElement = document.createElement("style");
+  styleElement.id = "cc-pwa-gallery-style";
+  styleElement.textContent = `
+    #cc-pwa-gallery-root {
+      position: fixed;
+      inset: 0;
+      display: none;
+      pointer-events: none;
+      z-index: 2147483647;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    #cc-pwa-gallery-root.cc-open {
+      display: block;
+      pointer-events: auto;
+    }
+
+    #cc-pwa-gallery-backdrop {
+      appearance: none;
+      position: absolute;
+      inset: 0;
+      border: 0;
+      padding: 0;
+      background: rgba(8, 13, 24, 0.56);
+      opacity: 0;
+      transition: opacity 180ms ease;
+    }
+
+    #cc-pwa-gallery-root.cc-open #cc-pwa-gallery-backdrop {
+      opacity: 1;
+    }
+
+    #cc-pwa-gallery-sheet {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      margin: 0 auto;
+      width: min(100%, 460px);
+      box-sizing: border-box;
+      padding: 20px 18px calc(18px + env(safe-area-inset-bottom, 0px));
+      border-radius: 24px 24px 0 0;
+      background: linear-gradient(180deg, #0f1b30 0%, #0a1220 100%);
+      color: #ffffff;
+      box-shadow: 0 -18px 50px rgba(0, 0, 0, 0.3);
+      transform: translateY(100%);
+      transition: transform 220ms ease;
+    }
+
+    #cc-pwa-gallery-root.cc-open #cc-pwa-gallery-sheet {
+      transform: translateY(0);
+    }
+
+    #cc-pwa-gallery-head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    #cc-pwa-gallery-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.08);
+      object-fit: cover;
+      flex: 0 0 auto;
+    }
+
+    #cc-pwa-gallery-title {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.2;
+      font-weight: 700;
+    }
+
+    #cc-pwa-gallery-meta {
+      margin: 4px 0 0;
+      font-size: 13px;
+      line-height: 1.4;
+      color: rgba(255, 255, 255, 0.72);
+    }
+
+    #cc-pwa-gallery-message {
+      margin: 0 0 18px;
+      font-size: 14px;
+      line-height: 1.55;
+      color: rgba(255, 255, 255, 0.88);
+      white-space: pre-line;
+    }
+
+    #cc-pwa-gallery-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    #cc-pwa-gallery-install,
+    #cc-pwa-gallery-close {
+      appearance: none;
+      border: 0;
+      border-radius: 14px;
+      height: 48px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 120ms ease, opacity 120ms ease, background 120ms ease;
+    }
+
+    #cc-pwa-gallery-install {
+      flex: 1 1 auto;
+      background: #4dd0a8;
+      color: #072319;
+    }
+
+    #cc-pwa-gallery-install[disabled] {
+      opacity: 0.55;
+      cursor: default;
+    }
+
+    #cc-pwa-gallery-close {
+      flex: 0 0 108px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+    }
+
+    #cc-pwa-gallery-install:active,
+    #cc-pwa-gallery-close:active {
+      transform: scale(0.98);
+    }
+  `;
+
+  document.head.appendChild(styleElement);
+}
+
+function closeCustomInstallDialog() {
+  if (!customDialogRoot) {
+    return;
+  }
+
+  customDialogVisible = false;
+  customDialogRoot.classList.remove("cc-open");
+  customDialogRoot.setAttribute("aria-hidden", "true");
+  window.setTimeout(() => {
+    if (!customDialogVisible) {
+      customDialogRoot.style.display = "none";
+    }
+  }, 220);
+}
+
+function canTriggerPrimaryDialogAction(state) {
+  if (!state) {
+    return false;
+  }
+
+  if (state.hasPromptEvent) {
+    return true;
+  }
+
+  if (!isChromiumFamily() && state.isInstallAvailable) {
+    return true;
+  }
+
+  if (state.code === STATE_CODE.UNSUPPORTED && installHintClearedAt > 0 && isChromiumFamily()) {
+    return true;
+  }
+
+  if (state.code === STATE_CODE.INSTALLED && isAndroidEdge() && state.storedInstallHint && !state.isStandalone) {
+    return true;
+  }
+
+  return false;
+}
+
+function updateCustomInstallDialog(state = buildState()) {
+  if (!customDialogRoot) {
+    return;
+  }
+
+  if (customDialogTitle) {
+    customDialogTitle.textContent = getDocumentTitle();
+  }
+
+  if (customDialogMeta) {
+    customDialogMeta.textContent = state.statusText;
+  }
+
+  if (customDialogMessage) {
+    customDialogMessage.textContent = state.detailMessage;
+  }
+
+  if (customDialogInstallButton) {
+    const canTriggerInstall = canTriggerPrimaryDialogAction(state);
+    customDialogInstallButton.textContent = canTriggerInstall ? (state.actionLabel || "Install") : "Close";
+    customDialogInstallButton.disabled = false;
+    customDialogInstallButton.dataset.mode = canTriggerInstall ? "install" : "close";
+  }
+}
+
+function ensureCustomInstallDialog() {
+  if (customDialogRoot) {
+    return customDialogRoot;
+  }
+
+  ensureCustomDialogStyles();
+
+  customDialogRoot = document.createElement("div");
+  customDialogRoot.id = "cc-pwa-gallery-root";
+  customDialogRoot.setAttribute("aria-hidden", "true");
+
+  customDialogBackdrop = document.createElement("button");
+  customDialogBackdrop.id = "cc-pwa-gallery-backdrop";
+  customDialogBackdrop.type = "button";
+  customDialogBackdrop.setAttribute("aria-label", "Close install dialog");
+
+  customDialogSheet = document.createElement("section");
+  customDialogSheet.id = "cc-pwa-gallery-sheet";
+  customDialogSheet.setAttribute("role", "dialog");
+  customDialogSheet.setAttribute("aria-modal", "true");
+  customDialogSheet.setAttribute("aria-label", "Install app");
+
+  const headElement = document.createElement("div");
+  headElement.id = "cc-pwa-gallery-head";
+
+  const iconElement = document.createElement("img");
+  iconElement.id = "cc-pwa-gallery-icon";
+  iconElement.alt = "App icon";
+  iconElement.src = getIconDefinition("cc-pwa-icon-192", "192x192")?.src || "";
+
+  const textWrapElement = document.createElement("div");
+  customDialogTitle = document.createElement("h2");
+  customDialogTitle.id = "cc-pwa-gallery-title";
+  customDialogMeta = document.createElement("p");
+  customDialogMeta.id = "cc-pwa-gallery-meta";
+  textWrapElement.appendChild(customDialogTitle);
+  textWrapElement.appendChild(customDialogMeta);
+
+  headElement.appendChild(iconElement);
+  headElement.appendChild(textWrapElement);
+
+  customDialogMessage = document.createElement("p");
+  customDialogMessage.id = "cc-pwa-gallery-message";
+
+  const actionElement = document.createElement("div");
+  actionElement.id = "cc-pwa-gallery-actions";
+
+  customDialogInstallButton = document.createElement("button");
+  customDialogInstallButton.id = "cc-pwa-gallery-install";
+  customDialogInstallButton.type = "button";
+
+  customDialogCloseButton = document.createElement("button");
+  customDialogCloseButton.id = "cc-pwa-gallery-close";
+  customDialogCloseButton.type = "button";
+  customDialogCloseButton.textContent = "Close";
+
+  actionElement.appendChild(customDialogInstallButton);
+  actionElement.appendChild(customDialogCloseButton);
+
+  customDialogSheet.appendChild(headElement);
+  customDialogSheet.appendChild(customDialogMessage);
+  customDialogSheet.appendChild(actionElement);
+
+  customDialogRoot.appendChild(customDialogBackdrop);
+  customDialogRoot.appendChild(customDialogSheet);
+
+  customDialogBackdrop.addEventListener("click", closeCustomInstallDialog);
+  customDialogCloseButton.addEventListener("click", closeCustomInstallDialog);
+  customDialogInstallButton.addEventListener("click", () => {
+    if (customDialogInstallButton?.dataset.mode !== "install") {
+      closeCustomInstallDialog();
+      return;
+    }
+
+    closeCustomInstallDialog();
+    void window.CCPwaInstallBridge?.install?.();
+  });
+
+  document.body.appendChild(customDialogRoot);
+  updateCustomInstallDialog();
+  return customDialogRoot;
+}
+
+function showCustomInstallDialog() {
+  const dialogElement = ensureCustomInstallDialog();
+  updateCustomInstallDialog();
+  customDialogVisible = true;
+  dialogElement.style.display = "block";
+  dialogElement.setAttribute("aria-hidden", "false");
+  window.requestAnimationFrame(() => {
+    if (customDialogVisible) {
+      dialogElement.classList.add("cc-open");
+    }
+  });
+}
+
 // 清理安装中的兜底定时器，避免状态长时间卡住
 function clearInstallFallbackTimer() {
   if (installFallbackTimer) {
@@ -325,7 +633,7 @@ function createHiddenInstallElement() {
   installElement = document.createElement("pwa-install");
   installElement.id = "cc-pwa-install";
   installElement.setAttribute("manual-apple", "true");
-  installElement.setAttribute("manual-chrome", "true");
+  installElement.setAttribute("disable-chrome", "true");
   installElement.setAttribute("use-local-storage", "true");
   const manifestUrl = getManifestUrl();
   if (manifestUrl) {
@@ -337,8 +645,9 @@ function createHiddenInstallElement() {
   installElement.style.top = "0";
   installElement.style.width = "0";
   installElement.style.height = "0";
-  installElement.style.overflow = "visible";
-  installElement.style.zIndex = "2147483647";
+  installElement.style.opacity = "0";
+  installElement.style.pointerEvents = "none";
+  installElement.style.zIndex = "-1";
 
   if (promptEvent) {
     installElement.externalPromptEvent = promptEvent;
@@ -349,6 +658,7 @@ function createHiddenInstallElement() {
     loadingError = null;
     setInstallHint(true);
     finishInstallAttempt();
+    closeCustomInstallDialog();
     emitStateChange();
   });
   installElement.addEventListener("pwa-install-fail-event", (event) => {
@@ -549,6 +859,7 @@ function buildState() {
 // 向 Creator 侧派发状态变更事件
 function emitStateChange() {
   const state = buildState();
+  updateCustomInstallDialog(state);
   window.dispatchEvent(
     new CustomEvent(BRIDGE_EVENT_NAME, {
       detail: state,
@@ -628,6 +939,7 @@ window.addEventListener("appinstalled", () => {
   finishInstallAttempt();
   relatedAppsInstalled = true;
   setInstallHint(true);
+  closeCustomInstallDialog();
   emitStateChange();
   void refreshRuntimeSignals();
 });
@@ -746,9 +1058,7 @@ window.CCPwaInstallBridge = {
       return emitStateChange();
     }
 
-    if (typeof installElement.showDialog === "function") {
-      installElement.showDialog(true);
-    }
+    showCustomInstallDialog();
 
     return emitStateChange();
   },
@@ -757,10 +1067,8 @@ window.CCPwaInstallBridge = {
     await loadInstallLibrary();
     await refreshRuntimeSignals();
 
-    if (installElement && typeof installElement.showDialog === "function") {
-      // 手动显示 pwa-install 的安装指引弹层
-      installElement.showDialog(true);
-    }
+    // 手动显示自定义的 gallery 风格安装弹窗
+    showCustomInstallDialog();
 
     return emitStateChange();
   },
