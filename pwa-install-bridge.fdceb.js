@@ -325,7 +325,7 @@ function createHiddenInstallElement() {
   installElement = document.createElement("pwa-install");
   installElement.id = "cc-pwa-install";
   installElement.setAttribute("manual-apple", "true");
-  installElement.setAttribute("disable-chrome", "true");
+  installElement.setAttribute("manual-chrome", "true");
   installElement.setAttribute("use-local-storage", "true");
   const manifestUrl = getManifestUrl();
   if (manifestUrl) {
