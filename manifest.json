@@ -1,14 +1,23 @@
 {
-  "description": "Vegas Fox web app",
+  "description": "Vegas Fox is a fast portrait-first web app with installable full-screen gameplay.",
   "id": "./index.html",
   "name": "Vegas Fox",
   "short_name": "Vegas Fox",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui",
+    "browser"
+  ],
   "orientation": "portrait",
   "background_color": "#000A1B",
   "theme_color": "#000A1B",
+  "categories": [
+    "games",
+    "entertainment"
+  ],
   "prefer_related_applications": false,
   "related_applications": [
     {
@@ -29,6 +38,22 @@
       "sizes": "512x512",
       "type": "image/webp",
       "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "./install_shot_mobile.6f4e7.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Mobile install preview"
+    },
+    {
+      "src": "./install_shot_desktop.0929d.png",
+      "sizes": "1600x900",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Desktop install preview"
     }
   ]
 }
