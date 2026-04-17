@@ -30,15 +30,7 @@ let serviceWorkerControlled = false;
 let storedInstallHint = readInstallHint();
 let installHintClearedAt = 0;
 
-function canPersistInstallHint() {
-  return !isAndroidEdge();
-}
-
 function readInstallHint() {
-  if (!canPersistInstallHint()) {
-    return false;
-  }
-
   try {
     return window.localStorage?.getItem(INSTALL_HINT_STORAGE_KEY) === "1";
   } catch (error) {
@@ -47,10 +39,6 @@ function readInstallHint() {
 }
 
 function writeInstallHint(value) {
-  if (!canPersistInstallHint()) {
-    return;
-  }
-
   try {
     if (!window.localStorage) {
       return;
@@ -378,6 +366,11 @@ function createHiddenInstallElement() {
 
 // 状态主标题
 function getStatusText(code) {
+  if (code === STATE_CODE.INSTALLED && isAndroidEdge() && storedInstallHint && !isStandaloneMode()) {
+    // 安卓 Edge 只能较粗略地识别主屏快捷方式，这里给出更贴近事实的标题
+    return "The shortcut was added previously";
+  }
+
   switch (code) {
     case STATE_CODE.AVAILABLE:
       // 当前设备可以安装
@@ -405,6 +398,11 @@ function getStatusText(code) {
 
 // 安装按钮文案
 function getActionLabel(code) {
+  if (code === STATE_CODE.INSTALLED && isAndroidEdge() && storedInstallHint && !isStandaloneMode()) {
+    // 允许用户在确认已卸载图标后主动重新检查一次状态
+    return "Check Again";
+  }
+
   switch (code) {
     case STATE_CODE.AVAILABLE:
       // 立即安装
@@ -437,6 +435,11 @@ function getActionLabel(code) {
 
 // 状态说明文本
 function getDetailMessage(code) {
+  if (code === STATE_CODE.INSTALLED && isAndroidEdge() && storedInstallHint && !isStandaloneMode()) {
+    // Edge Android 对主屏快捷方式没有可靠的已安装检测，这里明确告诉用户如何恢复重新安装
+    return "Android Edge may keep reporting this shortcut as installed even after the browser can still show an install prompt. If you already removed the home screen icon, tap Check Again to refresh the status.";
+  }
+
   switch (code) {
     case STATE_CODE.AVAILABLE:
       // 点击安装按钮后会触发浏览器安装流程
@@ -522,6 +525,7 @@ function buildState() {
     available: code === STATE_CODE.AVAILABLE,
     canInstall: code === STATE_CODE.AVAILABLE
       || code === STATE_CODE.GUIDE
+      || (code === STATE_CODE.INSTALLED && isAndroidEdge() && storedInstallHint && !standalone)
       || (code === STATE_CODE.UNSUPPORTED && installHintClearedAt > 0 && isChromiumFamily()),
     isStandalone: standalone,
     isApple,
@@ -662,6 +666,12 @@ window.CCPwaInstallBridge = {
   },
 
   async install() {
+    if (isAndroidEdge() && storedInstallHint && !isStandaloneMode()) {
+      setInstallHint(false);
+      await refreshRuntimeSignals();
+      return emitStateChange();
+    }
+
     if (!promptEvent && installHintClearedAt > 0 && isChromiumFamily()) {
       window.location.reload();
       return emitStateChange();
