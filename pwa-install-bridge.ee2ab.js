@@ -29,6 +29,8 @@ let serviceWorkerRegistered = false;
 let serviceWorkerControlled = false;
 let storedInstallHint = readInstallHint();
 let installHintClearedAt = 0;
+let pendingAcceptedInstall = false;
+let lastPromptOutcome = "";
 
 function readInstallHint() {
   try {
@@ -301,8 +303,9 @@ async function refreshRuntimeSignals() {
       const relatedApps = await navigator.getInstalledRelatedApps();
       relatedAppsInstalled = Array.isArray(relatedApps) && relatedApps.some((app) => app?.platform === "webapp");
       if (relatedAppsInstalled) {
+        pendingAcceptedInstall = false;
         setInstallHint(true);
-      } else if (supportsReliableRelatedAppsCheck() && !isStandaloneMode()) {
+      } else if (supportsReliableRelatedAppsCheck() && !isStandaloneMode() && !pendingAcceptedInstall) {
         setInstallHint(false);
       }
     } catch (error) {
@@ -510,6 +513,7 @@ function buildState() {
     relatedAppsInstalled,
     relatedAppsChecked,
     storedInstallHint,
+    promptOutcome: lastPromptOutcome || "",
     serviceWorkerRegistered,
     serviceWorkerControlled,
     errorMessage: loadingError ? String(loadingError.message || loadingError) : "",
@@ -583,6 +587,9 @@ window.addEventListener("beforeinstallprompt", (event) => {
   event.stopPropagation();
   event.stopImmediatePropagation();
 
+  pendingAcceptedInstall = false;
+  lastPromptOutcome = "";
+
   if (storedInstallHint && shouldClearInstallHintFromPrompt() && !isStandaloneMode() && !relatedAppsInstalled) {
     setInstallHint(false);
   }
@@ -600,6 +607,8 @@ window.addEventListener("beforeinstallprompt", (event) => {
 window.addEventListener("appinstalled", () => {
   finishInstallAttempt();
   relatedAppsInstalled = true;
+  pendingAcceptedInstall = false;
+  lastPromptOutcome = "accepted";
   setInstallHint(true);
   emitStateChange();
   void refreshRuntimeSignals();
@@ -642,6 +651,7 @@ window.CCPwaInstallBridge = {
   async install() {
     if (promptEvent) {
       const activePromptEvent = promptEvent;
+      lastPromptOutcome = "";
       beginInstallAttempt();
       emitStateChange();
 
@@ -661,13 +671,18 @@ window.CCPwaInstallBridge = {
       return Promise.resolve(promptResult)
         .then(() => activePromptEvent.userChoice || null)
         .then((choice) => {
+          lastPromptOutcome = choice?.outcome || "dismissed";
           if (choice?.outcome === "accepted") {
+            pendingAcceptedInstall = true;
             setInstallHint(true);
+          } else {
+            pendingAcceptedInstall = false;
           }
 
           return choice;
         })
         .catch((error) => {
+          pendingAcceptedInstall = false;
           loadingError = error;
           return null;
         })
