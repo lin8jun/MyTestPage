@@ -42,44 +42,44 @@
   ],
   "screenshots": [
     {
-      "src": "./install_shot_mobile_1.6f4e7.png",
+      "src": "./install_shot_mobile_1.7576e.webp",
       "sizes": "1080x1920",
-      "type": "image/png",
+      "type": "image/webp",
       "form_factor": "narrow",
       "label": "Mobile install preview 1"
     },
     {
-      "src": "./install_shot_mobile_2.6f4e7.png",
+      "src": "./install_shot_mobile_2.3b4b4.webp",
       "sizes": "1080x1920",
-      "type": "image/png",
+      "type": "image/webp",
       "form_factor": "narrow",
       "label": "Mobile install preview 2"
     },
     {
-      "src": "./install_shot_mobile_3.6f4e7.png",
+      "src": "./install_shot_mobile_3.b6ab1.webp",
       "sizes": "1080x1920",
-      "type": "image/png",
+      "type": "image/webp",
       "form_factor": "narrow",
       "label": "Mobile install preview 3"
     },
     {
-      "src": "./install_shot_mobile_4.6f4e7.png",
+      "src": "./install_shot_mobile_4.4cb7f.webp",
       "sizes": "1080x1920",
-      "type": "image/png",
+      "type": "image/webp",
       "form_factor": "narrow",
       "label": "Mobile install preview 4"
     },
     {
-      "src": "./install_shot_mobile_5.6f4e7.png",
+      "src": "./install_shot_mobile_5.d3d60.webp",
       "sizes": "1080x1920",
-      "type": "image/png",
+      "type": "image/webp",
       "form_factor": "narrow",
       "label": "Mobile install preview 5"
     },
     {
-      "src": "./install_shot_desktop.0929d.png",
+      "src": "./install_shot_desktop.1770e.webp",
       "sizes": "1600x900",
-      "type": "image/png",
+      "type": "image/webp",
       "form_factor": "wide",
       "label": "Desktop install preview"
     }
