@@ -1,12 +1,12 @@
 const CACHE_PREFIX = "slot-portrait-hall-runtime-";
 const CACHE_NAME = `${CACHE_PREFIX}v2`;
 
-// 激活前立即接管，避免首次安装后等待过久才生效
+
 self.addEventListener("install", (event) => {
   event.waitUntil(self.skipWaiting());
 });
 
-// 清理旧缓存并让当前页面尽快受控
+
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches
@@ -50,7 +50,7 @@ function cacheResponse(request, response) {
   });
 }
 
-// 文档请求优先走网络，失败时回退缓存；静态资源走缓存优先并后台刷新
+
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") {
     return;
