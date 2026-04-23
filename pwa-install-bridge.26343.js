@@ -4,7 +4,7 @@ const INSTALL_FALLBACK_TIMEOUT_MS = 8000;
 const RUNTIME_CONFIG_KEY = "__CC_PWA_RUNTIME__";
 const INSTALL_HINT_STORAGE_KEY = "cc-pwa-installed-hint";
 
-
+// 安装状态枚举，供 Creator 侧界面直接显示使用
 const STATE_CODE = {
   CHECKING: "checking",
   AVAILABLE: "available",
@@ -52,7 +52,7 @@ function writeInstallHint(value) {
       window.localStorage.removeItem(INSTALL_HINT_STORAGE_KEY);
     }
   } catch (error) {
-    
+    // 本地存储不可用时，只保留当前会话内的兜底状态
   }
 }
 
@@ -196,7 +196,7 @@ function getManifestUrl() {
   return runtimeManifestUrl || "";
 }
 
-
+// 清理安装中的兜底定时器，避免状态长时间卡住
 function clearInstallFallbackTimer() {
   if (installFallbackTimer) {
     window.clearTimeout(installFallbackTimer);
@@ -204,7 +204,7 @@ function clearInstallFallbackTimer() {
   }
 }
 
-
+// 开始一次安装流程，并设置超时回收
 function beginInstallAttempt() {
   loadingError = null;
   installInProgress = true;
@@ -215,73 +215,73 @@ function beginInstallAttempt() {
   }, INSTALL_FALLBACK_TIMEOUT_MS);
 }
 
-
+// 结束一次安装流程
 function finishInstallAttempt() {
   clearInstallFallbackTimer();
   installInProgress = false;
 }
 
-
+// 本地调试地址也允许安装能力检测
 function isLocalDebugHost() {
   return window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
 }
 
-
+// PWA 相关能力通常要求 https 或 localhost
 function isSecureContextForPwa() {
   return window.location.protocol === "https:" || isLocalDebugHost();
 }
 
-
+// 判断当前页面是否已经运行在独立模式
 function isStandaloneMode() {
   return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
 }
 
-
+// 判断是否为安卓 Edge
 function isAndroidEdge() {
   const ua = window.navigator.userAgent || "";
   return /Android/i.test(ua) && /EdgA/i.test(ua);
 }
 
-
+// 判断是否为桌面版 Edge
 function isDesktopEdge() {
   const ua = window.navigator.userAgent || "";
   return !/Android/i.test(ua) && /Edg\//i.test(ua);
 }
 
-
+// 判断是否为安卓 Chrome
 function isAndroidChrome() {
   const ua = window.navigator.userAgent || "";
   return /Android/i.test(ua) && /Chrome/i.test(ua) && !/EdgA/i.test(ua);
 }
 
-
+// 判断是否为桌面版 Chrome
 function isDesktopChrome() {
   const ua = window.navigator.userAgent || "";
   return !/Android/i.test(ua) && /Chrome\//i.test(ua) && !/Edg\//i.test(ua);
 }
 
-
+// 判断是否为 Firefox 桌面端
 function isDesktopFirefox() {
   const ua = window.navigator.userAgent || "";
   return !/Android/i.test(ua) && /Firefox\//i.test(ua);
 }
 
-
+// 判断是否为 Chromium 系浏览器
 function isChromiumFamily() {
   return isAndroidChrome() || isAndroidEdge() || isDesktopChrome() || isDesktopEdge();
 }
 
-
+// 目前只有 Android Chrome 的相关应用检测结果在本项目场景下相对稳定，可用于主动清除已安装提示
 function supportsReliableRelatedAppsCheck() {
   return isAndroidChrome();
 }
 
-
+// 部分浏览器重新出现 beforeinstallprompt，通常意味着已经回到“可重新安装”状态
 function shouldClearInstallHintFromPrompt() {
   return isAndroidChrome() || isDesktopChrome() || isDesktopEdge();
 }
 
-
+// 刷新运行时检测信号，例如 SW 和已安装应用状态
 async function refreshRuntimeSignals() {
   serviceWorkerControlled = Boolean(navigator.serviceWorker?.controller);
 
@@ -319,7 +319,7 @@ async function refreshRuntimeSignals() {
   return emitStateChange();
 }
 
-
+// 创建 pwa-install 宿主节点，并监听库自身事件
 function createHiddenInstallElement() {
   if (installElement) {
     return installElement;
@@ -332,7 +332,7 @@ function createHiddenInstallElement() {
   installElement.setAttribute("use-local-storage", "true");
   const manifestUrl = getManifestUrl();
   if (manifestUrl) {
-    
+    // 显式传入运行时 manifest，避免 pwa-install 回退去请求根路径的 /manifest.json
     installElement.setAttribute("manifest-url", manifestUrl);
   }
   installElement.style.position = "fixed";
@@ -369,108 +369,108 @@ function createHiddenInstallElement() {
   return installElement;
 }
 
-
+// 状态主标题
 function getStatusText(code) {
   switch (code) {
     case STATE_CODE.AVAILABLE:
-      
+      // 当前设备可以安装
       return "This device can install the app";
     case STATE_CODE.INSTALLING:
-      
+      // 正在拉起安装流程
       return "Opening the install flow";
     case STATE_CODE.INSTALLED:
-      
+      // 当前已经是已安装状态
       return "The app is already installed";
     case STATE_CODE.GUIDE:
-      
+      // 当前浏览器需要显示安装指引
       return "Installation guide is required";
     case STATE_CODE.UNSUPPORTED:
-      
+      // 当前环境暂不支持安装
       return "This environment does not support installation";
     case STATE_CODE.ERROR:
-      
+      // 安装组件加载失败
       return "Failed to load the install component";
     default:
-      
+      // 正在检查安装状态
       return "Checking installation status";
   }
 }
 
-
+// 安装按钮文案
 function getActionLabel(code) {
   switch (code) {
     case STATE_CODE.AVAILABLE:
-      
+      // 立即安装
       return "Install Now";
     case STATE_CODE.INSTALLING:
-      
+      // 安装中
       return "Installing...";
     case STATE_CODE.INSTALLED:
-      
+      // 已安装
       return "Installed";
     case STATE_CODE.GUIDE:
-      
+      // 查看安装指引
       return "View Guide";
     case STATE_CODE.UNSUPPORTED:
-      
+      // 当前不可安装
       return "Unavailable";
     case STATE_CODE.ERROR:
-      
+      // 加载失败
       return "Load Failed";
     default:
-      
+      // 检查中
       return "Checking...";
   }
 }
 
-
+// 状态说明文本
 function getDetailMessage(code) {
   switch (code) {
     case STATE_CODE.AVAILABLE:
-      
+      // 点击安装按钮后会触发浏览器安装流程
       return "Tap the install button to trigger the browser install flow.";
     case STATE_CODE.INSTALLING:
-      
+      // 请等待浏览器弹出安装确认
       return "Please wait for the browser install confirmation.";
     case STATE_CODE.INSTALLED:
-      
+      // 应用已经安装，后续可以直接从桌面或主屏打开
       return "The app has been installed and can be launched from the desktop or home screen.";
     case STATE_CODE.GUIDE:
       if (isAndroidEdge()) {
-        
+        // 安卓 Edge 没有直接可调用的安装提示，需要走浏览器菜单
         return "Android Edge does not expose a direct install prompt. Please open the browser menu and choose Add to phone or Add to home screen.";
       }
 
       if (isDesktopEdge()) {
-        
+        // Windows Edge 可通过地址栏安装图标或浏览器菜单安装
         return "Microsoft Edge can install this app from the App available icon in the address bar or from the browser menu. A manual install guide will also be available.";
       }
 
       if (isDesktopFirefox()) {
-        
+        // Firefox 桌面端默认不提供原生 PWA 安装入口
         return "Firefox does not provide a built-in PWA install flow on desktop. Please use a Chromium-based browser or a Firefox PWA extension.";
       }
 
-      
+      // 当前浏览器无法直接弹出安装提示，需要展示手动安装指引
       return "This browser cannot open the install prompt directly. A manual install guide will be shown.";
     case STATE_CODE.UNSUPPORTED:
       if (isChromiumFamily()) {
-        
+        // Chromium 在无痕/InPrivate 窗口下经常不会向页面暴露安装提示，这里给出更准确的说明
         return "The browser did not expose an install prompt to this page. If you are using Incognito or InPrivate browsing, open the site in a regular window and try again.";
       }
 
-      
+      // 请确认 HTTPS、manifest、service worker 等基础能力是否已生效
       return "Please make sure the page is running on HTTPS or localhost and that the manifest and service worker are active.";
     case STATE_CODE.ERROR:
-      
+      // 请检查 pwa-install 库是否可以正常加载
       return "Please check whether the pwa-install library can be loaded from the network, or switch to a local deployment.";
     default:
-      
+      // 页面初始化完成后会自动刷新安装状态
       return "The installation status will refresh automatically after initialization.";
   }
 }
 
-
+// 组合当前所有信号，生成最终状态
 function buildState() {
   const standalone = Boolean(installElement?.isUnderStandaloneMode) || isStandaloneMode();
   const isApple = Boolean(installElement?.isAppleMobilePlatform) || Boolean(installElement?.isAppleDesktopPlatform);
@@ -478,7 +478,7 @@ function buildState() {
   const componentInstallAvailable = Boolean(installElement?.isInstallAvailable);
   const isDialogSupported = typeof installElement?.showDialog === "function";
   const installed = standalone || relatedAppsInstalled || (storedInstallHint && !isPromptReady);
-  
+  // Chromium 自定义安装按钮最终依赖 beforeinstallprompt；仅组件判断可安装并不代表页面真能拉起安装弹窗
   const isInstallAvailable = isChromiumFamily() ? isPromptReady : (isPromptReady || componentInstallAvailable);
 
   let code = STATE_CODE.CHECKING;
@@ -523,7 +523,7 @@ function buildState() {
   return currentState;
 }
 
-
+// 向 Creator 侧派发状态变更事件
 function emitStateChange() {
   const state = buildState();
   window.dispatchEvent(
@@ -535,7 +535,7 @@ function emitStateChange() {
   return state;
 }
 
-
+// 注册最小 Service Worker，为 PWA 安装资格提供基础能力
 function registerServiceWorker() {
   if (!("serviceWorker" in navigator) || !isSecureContextForPwa()) {
     return;
@@ -557,7 +557,7 @@ function registerServiceWorker() {
   );
 }
 
-
+// 动态加载 pwa-install 库
 function loadInstallLibrary() {
   if (libraryReadyPromise) {
     return libraryReadyPromise;
@@ -581,7 +581,7 @@ function loadInstallLibrary() {
   return libraryReadyPromise;
 }
 
-
+// Chromium 安装事件，只在真正具备安装资格时触发
 window.addEventListener("beforeinstallprompt", (event) => {
   event.preventDefault();
   event.stopPropagation();
@@ -603,7 +603,7 @@ window.addEventListener("beforeinstallprompt", (event) => {
   emitStateChange();
 });
 
-
+// 安装成功后刷新已安装状态
 window.addEventListener("appinstalled", () => {
   finishInstallAttempt();
   relatedAppsInstalled = true;
@@ -614,12 +614,12 @@ window.addEventListener("appinstalled", () => {
   void refreshRuntimeSignals();
 });
 
-
+// 页面重新显示时刷新状态
 window.addEventListener("pageshow", () => {
   void refreshRuntimeSignals();
 });
 
-
+// 页面重新获得焦点时刷新状态
 window.addEventListener("focus", () => {
   void refreshRuntimeSignals();
 });
@@ -630,7 +630,7 @@ if (navigator.serviceWorker) {
   });
 }
 
-
+// 暴露给 Creator 侧调用的桥接对象
 window.CCPwaInstallBridge = {
   async ready() {
     await loadInstallLibrary();
@@ -662,7 +662,7 @@ window.CCPwaInstallBridge = {
 
       let promptResult = null;
       try {
-        
+        // 这里必须尽量同步触发 prompt()，否则浏览器会丢失用户点击手势，导致安卓端无法拉起安装弹窗
         promptResult = activePromptEvent.prompt();
       } catch (error) {
         loadingError = error;
@@ -699,7 +699,7 @@ window.CCPwaInstallBridge = {
 
       let installResult = null;
       try {
-        
+        // 与 beforeinstallprompt 同理，组件安装也要尽量在点击手势所属调用栈内立即触发
         installResult = installElement.install();
       } catch (error) {
         loadingError = error;
