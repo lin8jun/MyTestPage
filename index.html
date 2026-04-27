@@ -117,7 +117,7 @@
 
   <link rel="stylesheet" type="text/css" href="style.f76d1.css"/>
   <!-- TODO -->
-  <script type="module" src="pwa-install-bridge.f723b.js"></script> 
+  <script type="module" src="pwa-install-bridge.c4161.js"></script> 
 
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-NC22P6098V"></script>
   <script>
@@ -141,6 +141,81 @@
         <canvas id="GameCanvas" oncontextmenu="event.preventDefault()" tabindex="99"></canvas>
       </div>
     </div>
+  <script>
+    (function () {
+      const ORIENTATION_EVENT_NAME = "cc-orientation-change";
+      let currentOrientationState = null;
+
+      function buildOrientationState() {
+        const screenOrientation = window.screen && window.screen.orientation ? window.screen.orientation : null;
+        const orientationType = screenOrientation && typeof screenOrientation.type === "string"
+          ? screenOrientation.type
+          : "";
+        const orientationAngle = screenOrientation && typeof screenOrientation.angle === "number"
+          ? screenOrientation.angle
+          : (typeof window.orientation === "number" ? window.orientation : 0);
+
+        let isPortrait = false;
+        let source = "viewport";
+
+        if (orientationType) {
+          isPortrait = orientationType.indexOf("portrait") === 0;
+          source = "screen.orientation";
+        } else if (typeof window.matchMedia === "function") {
+          isPortrait = window.matchMedia("(orientation: portrait)").matches;
+          source = "matchMedia";
+        } else {
+          isPortrait = window.innerHeight >= window.innerWidth;
+        }
+
+        return {
+          isPortrait: isPortrait,
+          isLandscape: !isPortrait,
+          type: isPortrait ? "portrait" : "landscape",
+          rawType: orientationType || (isPortrait ? "portrait" : "landscape"),
+          angle: orientationAngle,
+          width: window.innerWidth,
+          height: window.innerHeight,
+          source: source,
+          updatedAt: Date.now()
+        };
+      }
+
+      function emitOrientationChange() {
+        currentOrientationState = buildOrientationState();
+        window.dispatchEvent(new CustomEvent(ORIENTATION_EVENT_NAME, {
+          detail: currentOrientationState
+        }));
+        return currentOrientationState;
+      }
+
+      window.CCOrientationBridge = {
+        eventName: ORIENTATION_EVENT_NAME,
+        getState: function () {
+          return currentOrientationState || emitOrientationChange();
+        },
+        refresh: function () {
+          return emitOrientationChange();
+        }
+      };
+
+      if (window.screen && window.screen.orientation && typeof window.screen.orientation.addEventListener === "function") {
+        window.screen.orientation.addEventListener("change", emitOrientationChange);
+      }
+
+      window.addEventListener("orientationchange", emitOrientationChange);
+      window.addEventListener("resize", emitOrientationChange);
+      window.addEventListener("pageshow", emitOrientationChange);
+
+      document.addEventListener("visibilitychange", function () {
+        if (!document.hidden) {
+          emitOrientationChange();
+        }
+      });
+
+      emitOrientationChange();
+    })();
+  </script>
   
 
 <!-- Polyfills bundle. -->
@@ -155,7 +230,7 @@
 <script src="src/import-map.17abe.json" type="systemjs-importmap" charset="utf-8"> </script>
 
 <script>
-    System.import('./index.211a2.js').catch(function(err) { console.error(err); })
+    System.import('./index.5ae95.js').catch(function(err) { console.error(err); })
 </script>
 
 
