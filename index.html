@@ -51,73 +51,6 @@
     }
     #GameDiv { width: 100%; height: 100%; }
 
-    #orientation-mask {
-      position: fixed;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      background:
-        radial-gradient(circle at top, rgba(21, 43, 82, 0.92), rgba(0, 10, 27, 0.98) 60%),
-        #000A1B;
-      z-index: 10000;
-      box-sizing: border-box;
-    }
-
-    #orientation-mask.is-visible {
-      display: flex;
-    }
-
-    .orientation-mask__panel {
-      width: min(420px, 100%);
-      text-align: center;
-      color: #fff;
-      font-family: Helvetica, Arial, sans-serif;
-    }
-
-    .orientation-mask__icon {
-      width: 76px;
-      height: 76px;
-      margin: 0 auto 20px;
-      border: 2px solid rgba(255, 255, 255, 0.85);
-      border-radius: 18px;
-      position: relative;
-      box-sizing: border-box;
-      animation: orientationHintTilt 1.4s ease-in-out infinite alternate;
-    }
-
-    .orientation-mask__icon::before {
-      content: "";
-      position: absolute;
-      top: 8px;
-      left: 50%;
-      width: 22px;
-      height: 3px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.78);
-      transform: translateX(-50%);
-    }
-
-    .orientation-mask__title {
-      margin: 0 0 10px;
-      font-size: 24px;
-      font-weight: 700;
-      letter-spacing: 1px;
-    }
-
-    .orientation-mask__text {
-      margin: 0;
-      font-size: 15px;
-      line-height: 1.6;
-      color: rgba(255, 255, 255, 0.82);
-    }
-
-    @keyframes orientationHintTilt {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(-90deg); }
-    }
-
     /* ========= loading style ========== */
     #loading-mask {
         position: fixed;
@@ -184,7 +117,7 @@
 
   <link rel="stylesheet" type="text/css" href="style.f76d1.css"/>
   <!-- TODO -->
-  <script type="module" src="pwa-install-bridge.635ed.js"></script> 
+  <script type="module" src="pwa-install-bridge.f723b.js"></script> 
 
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-NC22P6098V"></script>
   <script>
@@ -198,14 +131,6 @@
 <body>
   <audio id="bgm_global" src="b.f17a2.mp3"></audio>
 
-  <div id="orientation-mask" aria-hidden="true">
-    <div class="orientation-mask__panel">
-      <div class="orientation-mask__icon" aria-hidden="true"></div>
-      <h1 class="orientation-mask__title">Please rotate back</h1>
-      <p class="orientation-mask__text">This web-mobile version is fixed to portrait mode in browser view. Your phone can keep auto-rotate on, but please continue in portrait orientation.</p>
-    </div>
-  </div>
-
   <div id="loading-mask">
     <img src="logo.d20c7.webp" alt="" class="loading-logo">
     <div class="loading-text">Loading...</div>
@@ -216,63 +141,6 @@
         <canvas id="GameCanvas" oncontextmenu="event.preventDefault()" tabindex="99"></canvas>
       </div>
     </div>
-  <script>
-    (function () {
-      const mask = document.getElementById("orientation-mask");
-      const gameDiv = document.getElementById("GameDiv");
-      const loadingMask = document.getElementById("loading-mask");
-
-      function isLandscapeViewport() {
-        return window.innerWidth > window.innerHeight;
-      }
-
-      async function tryLockPortrait() {
-        try {
-          if (screen.orientation && typeof screen.orientation.lock === "function") {
-            await screen.orientation.lock("portrait");
-          }
-        } catch (error) {
-          // Most browser tabs will reject orientation lock without standalone/fullscreen context.
-        }
-      }
-
-      function syncOrientationMask() {
-        const showMask = isLandscapeViewport();
-        mask.classList.toggle("is-visible", showMask);
-        mask.setAttribute("aria-hidden", showMask ? "false" : "true");
-
-        if (gameDiv) {
-          gameDiv.style.visibility = showMask ? "hidden" : "visible";
-        }
-
-        if (loadingMask) {
-          loadingMask.style.visibility = showMask ? "hidden" : "visible";
-        }
-      }
-
-      window.addEventListener("load", () => {
-        syncOrientationMask();
-        void tryLockPortrait();
-      }, { once: true });
-      window.addEventListener("resize", syncOrientationMask);
-      window.addEventListener("orientationchange", () => {
-        syncOrientationMask();
-        void tryLockPortrait();
-      });
-      document.addEventListener("visibilitychange", () => {
-        if (!document.hidden) {
-          syncOrientationMask();
-          void tryLockPortrait();
-        }
-      });
-      document.addEventListener("fullscreenchange", () => {
-        syncOrientationMask();
-        void tryLockPortrait();
-      });
-
-      syncOrientationMask();
-    })();
-  </script>
   
 
 <!-- Polyfills bundle. -->

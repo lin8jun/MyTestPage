@@ -144,7 +144,7 @@ function ensureRuntimeManifest() {
     scope: scopeUrl.href,
     display: "standalone",
     display_override: ["standalone", "minimal-ui", "browser"],
-    orientation: "portrait",
+    
     background_color: getThemeColor(),
     theme_color: getThemeColor(),
     icons: manifestIcons,
