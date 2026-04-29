@@ -51,44 +51,6 @@
     }
     #GameDiv { width: 100%; height: 100%; }
 
-    /* ========= 横屏遮罩 ========= */
-    #orientation-lock-overlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background-color: #000A1B;
-      z-index: 99999;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
-    #orientation-lock-overlay .rotate-icon {
-      width: 80px; height: 80px;
-      margin-bottom: 24px;
-      border: 3px solid rgba(255, 255, 255, 0.25);
-      border-radius: 12px;
-      animation: rotateHint 2s ease-in-out infinite;
-    }
-    @keyframes rotateHint {
-      0%, 100% { transform: rotate(0deg); }
-      50% { transform: rotate(90deg); }
-    }
-    #orientation-lock-overlay .rotate-text {
-      font-family: Helvetica, Arial, sans-serif;
-      font-size: 16px;
-      font-weight: 100;
-      letter-spacing: 2px;
-      color: rgba(255, 255, 255, 0.7);
-      text-align: center;
-    }
-    /* 横屏时显示遮罩 */
-    @media screen and (orientation: landscape) {
-      #orientation-lock-overlay {
-        display: flex;
-      }
-    }
-
     /* ========= loading style ========== */
     #loading-mask {
         position: fixed;
@@ -174,12 +136,6 @@
     <div class="loading-text">Loading...</div>
   </div>
 
-  <!-- 横屏锁定遮罩 -->
-  <div id="orientation-lock-overlay">
-    <div class="rotate-icon"></div>
-    <div class="rotate-text">Please rotate your device</div>
-  </div>
-
   <div id="GameDiv" cc_exact_fit_screen="true">
       <div id="Cocos3dGameContainer">
         <canvas id="GameCanvas" oncontextmenu="event.preventDefault()" tabindex="99"></canvas>
@@ -189,31 +145,6 @@
     (function () {
       const ORIENTATION_EVENT_NAME = "cc-orientation-change";
       let currentOrientationState = null;
-
-      // ========= 横竖屏锁定 =========
-      var _orientationLocked = false;
-
-      function lockPortraitOrientation() {
-        if (_orientationLocked) return;
-        _orientationLocked = true;
-
-        try {
-          if (screen.orientation && typeof screen.orientation.lock === "function") {
-            screen.orientation.lock("portrait").catch(function () {
-              _orientationLocked = false;
-            });
-          }
-        } catch (e) {
-          _orientationLocked = false;
-        }
-      }
-
-      // 初始化时尝试锁定（部分浏览器支持非用户手势锁定）
-      lockPortraitOrientation();
-
-      // 用户首次触摸/点击时重试（部分浏览器要求用户手势）
-      document.addEventListener("touchstart", lockPortraitOrientation, { once: true, passive: true });
-      document.addEventListener("mousedown", lockPortraitOrientation, { once: true, passive: true });
 
       function buildOrientationState() {
         const screenOrientation = window.screen && window.screen.orientation ? window.screen.orientation : null;
