@@ -216,100 +216,6 @@
       emitOrientationChange();
     })();
   </script>
-
-  <script>
-    (function () {
-      // 已在独立 PWA 模式下运行 — manifest 的 orientation 配置已接管方向锁定
-      if (window.matchMedia("(display-mode: standalone)").matches ||
-          window.navigator.standalone) {
-        return;
-      }
-
-      var HAS_ORIENTATION_LOCK = window.screen &&
-        window.screen.orientation &&
-        typeof window.screen.orientation.lock === 'function';
-
-      // 浏览器不支持 screen.orientation.lock（如 iOS Safari），无法在普通浏览模式下锁定方向
-      if (!HAS_ORIENTATION_LOCK) {
-        return;
-      }
-
-      var isLocked = false;
-      var requestPending = false;
-
-      function isFullscreen() {
-        return !!(document.fullscreenElement ||
-                  document.webkitFullscreenElement ||
-                  document.mozFullScreenElement);
-      }
-
-      function doLock() {
-        if (isLocked) return;
-        try {
-          window.screen.orientation.lock('portrait').then(function () {
-            isLocked = true;
-          }).catch(function (err) {
-            // 移动端未进入全屏时 lock() 会抛出 SecurityError，正常流程会在全屏后重试
-            if (err.name !== 'SecurityError') {
-              console.warn('[OrientationLock] lock rejected:', err.message);
-            }
-          });
-        } catch (e) {
-          console.warn('[OrientationLock] lock exception:', e.message);
-        }
-      }
-
-      function requestFullscreen() {
-        if (requestPending) return;
-        var el = document.documentElement;
-        var promise;
-        if (el.requestFullscreen) {
-          promise = el.requestFullscreen();
-        } else if (el.webkitRequestFullscreen) {
-          promise = el.webkitRequestFullscreen();
-        }
-        if (promise && typeof promise.then === 'function') {
-          requestPending = true;
-          var done = function () { requestPending = false; };
-          promise.then(function () {
-            done();
-            doLock();
-          }, function () {
-            done();
-          });
-        }
-      }
-
-      function handleInteraction() {
-        if (!isFullscreen()) {
-          requestFullscreen();
-        } else if (!isLocked) {
-          doLock();
-        }
-      }
-
-      function onFullscreenChange() {
-        if (isFullscreen()) {
-          doLock();
-        } else {
-          isLocked = false;
-        }
-      }
-
-      function onVisibilityChange() {
-        if (!document.hidden && isFullscreen()) {
-          doLock();
-        }
-      }
-
-      // capture 阶段尽早拦截，不影响游戏引擎的事件处理
-      document.addEventListener('click', handleInteraction, { capture: true, passive: true });
-      document.addEventListener('touchstart', handleInteraction, { capture: true, passive: true });
-      document.addEventListener('fullscreenchange', onFullscreenChange);
-      document.addEventListener('webkitfullscreenchange', onFullscreenChange);
-      document.addEventListener('visibilitychange', onVisibilityChange);
-    })();
-  </script>
   
 
 <!-- Polyfills bundle. -->
@@ -324,7 +230,7 @@
 <script src="src/import-map.17abe.json" type="systemjs-importmap" charset="utf-8"> </script>
 
 <script>
-    System.import('./index.13a61.js').catch(function(err) { console.error(err); })
+    System.import('./index.cb42c.js').catch(function(err) { console.error(err); })
 </script>
 
 
