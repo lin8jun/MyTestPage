@@ -1,0 +1,27 @@
+
+deng.png
+size: 1828,624
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+d
+  rotate: false
+  xy: 1232, 24
+  size: 594, 598
+  orig: 594, 598
+  offset: 0, 0
+  index: -1
+d1
+  rotate: false
+  xy: 627, 19
+  size: 603, 603
+  orig: 605, 605
+  offset: 1, 1
+  index: -1
+d2
+  rotate: true
+  xy: 2, 2
+  size: 620, 623
+  orig: 622, 625
+  offset: 1, 1
+  index: -1
