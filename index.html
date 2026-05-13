@@ -117,6 +117,120 @@
 
   <link rel="stylesheet" type="text/css" href="style.f76d1.css"/>
   <!-- TODO -->
+
+  <script>
+    (function() {
+    const currentUrl = window.location.href;
+    const manifestConfig = {
+        "description": "Vegas Fox is a fast portrait-first web app with installable full-screen gameplay.",
+        "id": currentUrl,
+        "name": "Vegas Fox",
+        "short_name": "Vegas Fox",
+        "start_url": currentUrl,
+        "scope": "index.5586b.js/",
+        "display": "standalone",
+        "display_override": [
+            "standalone",
+            "minimal-ui",
+            "browser"
+        ],
+        "orientation": "portrait",
+        "background_color": "#000A1B",
+        "theme_color": "#000A1B",
+        "categories": [
+            "games",
+            "entertainment"
+        ],
+        "prefer_related_applications": false,
+        "related_applications": [
+            {
+                "platform": "webapp",
+                "url": currentUrl,
+                "id": currentUrl
+            }
+        ],
+        "icons": [
+            {
+                "src": "./icon_192.5dd0a.webp",
+                "sizes": "192x192",
+                "type": "image/webp",
+                "purpose": "any"
+            },
+            {
+                "src": "./icon_512.55f01.webp",
+                "sizes": "512x512",
+                "type": "image/webp",
+                "purpose": "any"
+            }
+        ],
+        "screenshots": [
+            {
+                "src": "./install_shot_mobile_1.7576e.webp",
+                "sizes": "1080x1920",
+                "type": "image/webp",
+                "form_factor": "narrow",
+                "label": "Mobile install preview 1"
+            },
+            {
+                "src": "./install_shot_mobile_2.3b4b4.webp",
+                "sizes": "1080x1920",
+                "type": "image/webp",
+                "form_factor": "narrow",
+                "label": "Mobile install preview 2"
+            },
+            {
+                "src": "./install_shot_mobile_3.b6ab1.webp",
+                "sizes": "1080x1920",
+                "type": "image/webp",
+                "form_factor": "narrow",
+                "label": "Mobile install preview 3"
+            },
+            {
+                "src": "./install_shot_mobile_4.4cb7f.webp",
+                "sizes": "1080x1920",
+                "type": "image/webp",
+                "form_factor": "narrow",
+                "label": "Mobile install preview 4"
+            },
+            {
+                "src": "./install_shot_mobile_5.d3d60.webp",
+                "sizes": "1080x1920",
+                "type": "image/webp",
+                "form_factor": "narrow",
+                "label": "Mobile install preview 5"
+            },
+            {
+                "src": "./install_shot_desktop.20403.webp",
+                "sizes": "1600x900",
+                "type": "image/webp",
+                "form_factor": "wide",
+                "label": "Desktop install preview"
+            }
+        ]
+    };
+
+    try {
+        const manifestStr = JSON.stringify(manifestConfig);
+        const blob = new Blob([manifestStr], { type: 'application/manifest+json' });
+        const manifestUrl = URL.createObjectURL(blob);
+
+        let link = document.querySelector('link[rel="manifest"]');
+        if (!link) {
+            link = document.createElement('link');
+            link.rel = 'manifest';
+            document.head.appendChild(link);
+        }
+        link.href = manifestUrl;
+        console.log("Success: PWA manifest injected with parameters.");
+    } catch (e) {
+        console.error("Failed to inject manifest:", e);
+    }
+})();
+  </script> 
+
+
+
+
   <script type="module" src="pwa-install-bridge.c4161.js"></script> 
 
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-NC22P6098V"></script>
@@ -230,7 +344,7 @@
 <script src="src/import-map.f6d19.json" type="systemjs-importmap" charset="utf-8"> </script>
 
 <script>
-    System.import('./index.35be5.js').catch(function(err) { console.error(err); })
+    System.import('./index.5586b.js').catch(function(err) { console.error(err); })
 </script>
 
 
