@@ -15677,13 +15677,15 @@ System.register("chunks:///_virtual/Turntable.ts", ['./rollupPluginModLoBabelHel
          */;
         _proto.onRotationComplete = function onRotationComplete() {
           this.isRotating = false;
-          if (this.awardData.pbfixRewardType == pbfixRewardType.pbfixREWARD_TYPE_MONEY) {
-            var _this$awardData;
-            NGame.dialog.showGetRewardDialog({
-              rewardNum: safetyNum((_this$awardData = this.awardData) == null ? void 0 : _this$awardData.pbfixRewardValue).cToRateNum()
-            });
-          } else {
-            NGame.tips.toast("Whell Get RewardSuccess, Free Spins X" + this.awardData.pbfixRewardValue);
+          if (this.awardData) {
+            if (this.awardData.pbfixRewardType == pbfixRewardType.pbfixREWARD_TYPE_MONEY) {
+              var _this$awardData;
+              NGame.dialog.showGetRewardDialog({
+                rewardNum: safetyNum((_this$awardData = this.awardData) == null ? void 0 : _this$awardData.pbfixRewardValue).cToRateNum()
+              });
+            } else {
+              NGame.tips.toast("Whell Get RewardSuccess, Free Spins X" + this.awardData.pbfixRewardValue);
+            }
           }
           this.reloadData();
           // if (this.awardData.rewardType == 1) {
