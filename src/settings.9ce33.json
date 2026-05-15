@@ -45,11 +45,11 @@
             }
         ],
         "bundleVers": {
-            "hall": "14f1c",
+            "hall": "a5ff9",
             "internal": "176e5",
             "login": "d8cfa",
             "main": "83933",
-            "resources": "5a556"
+            "resources": "049dc"
         },
         "preloadAssets": [],
         "projectBundles": [
