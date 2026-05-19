@@ -246,12 +246,39 @@
 
   <script>
     (function () {
+      var FIRST_TARGET = 0.20;
+      var DECAY_K = 0.9;
+      var _displayed = 0;
+      var _firstStart = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
+      var _firstDone = false;
+      var _engineTookOver = false;
+
+      function applyProgress(p) {
+        if (p <= _displayed) return;
+        _displayed = p;
+        var fill = document.getElementById("progress-fill");
+        var text = document.getElementById("progress-text");
+        if (fill) fill.style.width = (p * 100).toFixed(1) + "%";
+        if (text) text.textContent = (p * 100).toFixed(0) + "%";
+      }
+
+      function firstTick() {
+        if (_engineTookOver || _firstDone) return;
+        if (document.visibilityState !== "hidden") {
+          var now = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
+          var t = (now - _firstStart) / 1000;
+          var p = FIRST_TARGET * (1 - Math.exp(-DECAY_K * t));
+          if (p >= FIRST_TARGET * 0.999) { p = FIRST_TARGET; _firstDone = true; }
+          applyProgress(p);
+        }
+        if (!_firstDone) requestAnimationFrame(firstTick);
+      }
+      requestAnimationFrame(firstTick);
+
       window.CCLoadingBridge = {
         setProgress: function (progress) {
-          var fill = document.getElementById("progress-fill");
-          var text = document.getElementById("progress-text");
-          if (fill) fill.style.width = (progress * 100).toFixed(1) + "%";
-          if (text) text.textContent = (progress * 100).toFixed(0) + "%";
+          if (progress > FIRST_TARGET) _engineTookOver = true;
+          applyProgress(Math.min(progress, 1));
         },
         onComplete: function () {
           var mask = document.getElementById("loading-mask");
