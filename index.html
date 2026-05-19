@@ -285,6 +285,17 @@
           if (mask) {
             setTimeout(function () { mask.style.display = "none"; }, 350);
           }
+        },
+        reset: function () {
+          _displayed = 0;
+          _engineTookOver = true;
+          _firstDone = true;
+          var fill = document.getElementById("progress-fill");
+          var text = document.getElementById("progress-text");
+          if (fill) fill.style.width = "0%";
+          if (text) text.textContent = "0%";
+          var mask = document.getElementById("loading-mask");
+          if (mask) mask.style.display = "block";
         }
       };
     })();
@@ -378,7 +389,7 @@
 <script src="src/import-map.17abe.json" type="systemjs-importmap" charset="utf-8"> </script>
 
 <script>
-    System.import('./index.9cd2b.js').catch(function(err) { console.error(err); })
+    System.import('./index.17c4a.js').catch(function(err) { console.error(err); })
 </script>
 
 
