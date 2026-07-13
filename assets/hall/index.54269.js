@@ -18099,6 +18099,9 @@ System.register("chunks:///_virtual/PlayPage.ts", ['./rollupPluginModLoBabelHelp
             if (showRedDot) {
               animName = "icon_trigger";
               eventName = EventName.RED_DOT_SHOW;
+              gameDataMgr.redDotSet.add(RedDotType.RED_DOT_PINATA);
+            } else {
+              gameDataMgr.redDotSet["delete"](RedDotType.RED_DOT_PINATA);
             }
             this.btnPinata.getComponent(sp.Skeleton).setAnimation(0, animName, true);
             gloEvent.emit(eventName, {
@@ -18206,7 +18209,9 @@ System.register("chunks:///_virtual/PlayPage.ts", ['./rollupPluginModLoBabelHelp
 
               // UserInfo带true已刷新,
               if (mData != null && mData.needRefreshBalance) {
-                _this6.checkDay7ChestActRedDot();
+                _this6.scheduleOnce(function () {
+                  _this6.checkDay7ChestActRedDot();
+                }, 1);
               }
             });
           });
@@ -18303,7 +18308,9 @@ System.register("chunks:///_virtual/PlayPage.ts", ['./rollupPluginModLoBabelHelp
                 var eventName = EventName.RED_DOT_HIDE;
                 if (gameDataMgr.day7ChestHasClaimable) {
                   eventName = EventName.RED_DOT_SHOW;
+                  gameDataMgr.redDotSet.add(RedDotType.RED_DOT_SEVEN_DAY_CHEST);
                 } else {
+                  gameDataMgr.redDotSet["delete"](RedDotType.RED_DOT_SEVEN_DAY_CHEST);
                   HallReddotUtil.updateSideBtnRedotState();
                 }
                 gloEvent.emit(eventName, {
@@ -26586,6 +26593,7 @@ System.register("chunks:///_virtual/WidInfo.ts", ['./rollupPluginModLoBabelHelpe
                 _this4.updateWidTypeInfo();
                 var info = _this4.withdrawTypeList[_this4.widIdx];
                 _this4.widAccountInfoView.getComponent(WidAccountInfoView).setDefaultAccountInfo(info);
+                _this4.updateReceive();
                 // NGame.tips.toast(`widIdx = ${this.widIdx}`)
               }
             });
