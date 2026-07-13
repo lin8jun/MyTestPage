@@ -1,0 +1,139 @@
+
+ui_baoxiang.png
+size: 1992,493
+format: RGBA4444
+filter: Linear,Linear
+repeat: none
+images/01
+  rotate: true
+  xy: 1174, 2
+  size: 236, 191
+  orig: 236, 191
+  offset: 0, 0
+  index: -1
+images/01a
+  rotate: true
+  xy: 1487, 239
+  size: 254, 241
+  orig: 254, 241
+  offset: 0, 0
+  index: -1
+images/02
+  rotate: true
+  xy: 1366, 2
+  size: 236, 191
+  orig: 236, 191
+  offset: 0, 0
+  index: -1
+images/02a
+  rotate: true
+  xy: 740, 239
+  size: 254, 248
+  orig: 254, 248
+  offset: 0, 0
+  index: -1
+images/03
+  rotate: true
+  xy: 788, 2
+  size: 236, 192
+  orig: 236, 192
+  offset: 0, 0
+  index: -1
+images/03a
+  rotate: true
+  xy: 989, 239
+  size: 254, 248
+  orig: 254, 248
+  offset: 0, 0
+  index: -1
+images/04
+  rotate: false
+  xy: 316, 28
+  size: 238, 192
+  orig: 238, 192
+  offset: 0, 0
+  index: -1
+images/04a
+  rotate: true
+  xy: 1729, 240
+  size: 253, 247
+  orig: 253, 247
+  offset: 0, 0
+  index: -1
+images/05
+  rotate: true
+  xy: 981, 2
+  size: 236, 192
+  orig: 236, 192
+  offset: 0, 0
+  index: -1
+images/05a
+  rotate: true
+  xy: 1238, 239
+  size: 254, 248
+  orig: 254, 248
+  offset: 0, 0
+  index: -1
+images/06
+  rotate: false
+  xy: 1558, 15
+  size: 245, 223
+  orig: 245, 223
+  offset: 0, 0
+  index: -1
+images/06a
+  rotate: false
+  xy: 485, 233
+  size: 254, 260
+  orig: 254, 260
+  offset: 0, 0
+  index: -1
+images/07
+  rotate: true
+  xy: 261, 221
+  size: 272, 223
+  orig: 272, 223
+  offset: 0, 0
+  index: -1
+images/07a
+  rotate: true
+  xy: 0, 176
+  size: 317, 260
+  orig: 317, 260
+  offset: 0, 0
+  index: -1
+images/gc
+  rotate: false
+  xy: 555, 0
+  size: 232, 232
+  orig: 232, 232
+  offset: 0, 0
+  index: -1
+images/gx
+  rotate: false
+  xy: 1804, 57
+  size: 188, 182
+  orig: 188, 188
+  offset: 0, 1
+  index: -1
+images/hx2
+  rotate: false
+  xy: 0, 15
+  size: 160, 160
+  orig: 200, 200
+  offset: 20, 20
+  index: -1
+images/lizi
+  rotate: false
+  xy: 261, 197
+  size: 23, 23
+  orig: 23, 23
+  offset: 0, 0
+  index: -1
+images/xx
+  rotate: false
+  xy: 161, 21
+  size: 154, 154
+  orig: 154, 154
+  offset: 0, 0
+  index: -1
