@@ -1,0 +1,174 @@
+
+ui_earn.png
+size: 1987,494
+format: RGBA4444
+filter: Linear,Linear
+repeat: none
+images/baokai/baokai_00
+  rotate: false
+  xy: 1449, 201
+  size: 135, 293
+  orig: 395, 492
+  offset: 92, 126
+  index: -1
+images/baokai/baokai_01
+  rotate: true
+  xy: 522, 4
+  size: 143, 301
+  orig: 395, 492
+  offset: 84, 123
+  index: -1
+images/baokai/baokai_03
+  rotate: false
+  xy: 1297, 186
+  size: 151, 308
+  orig: 395, 492
+  offset: 76, 124
+  index: -1
+images/baokai/baokai_04
+  rotate: true
+  xy: 824, 0
+  size: 154, 313
+  orig: 395, 492
+  offset: 73, 123
+  index: -1
+images/baokai/baokai_06
+  rotate: true
+  xy: 1138, 2
+  size: 161, 325
+  orig: 395, 492
+  offset: 66, 122
+  index: -1
+images/baokai/baokai_07
+  rotate: false
+  xy: 1132, 164
+  size: 164, 330
+  orig: 395, 492
+  offset: 63, 123
+  index: -1
+images/baokai/baokai_09
+  rotate: false
+  xy: 554, 153
+  size: 171, 341
+  orig: 395, 492
+  offset: 56, 123
+  index: -1
+images/baokai/baokai_10
+  rotate: false
+  xy: 377, 148
+  size: 176, 346
+  orig: 395, 492
+  offset: 51, 123
+  index: -1
+images/baokai/baokai_12
+  rotate: false
+  xy: 191, 132
+  size: 185, 362
+  orig: 395, 492
+  offset: 42, 122
+  index: -1
+images/baokai/baokai_13
+  rotate: false
+  xy: 0, 130
+  size: 190, 364
+  orig: 395, 492
+  offset: 37, 123
+  index: -1
+images/baokai/baokai_15
+  rotate: false
+  xy: 930, 160
+  size: 201, 334
+  orig: 395, 492
+  offset: 25, 127
+  index: -1
+images/baokai/baokai_16
+  rotate: false
+  xy: 726, 155
+  size: 203, 339
+  orig: 395, 492
+  offset: 21, 126
+  index: -1
+images/baokai/baokai_18
+  rotate: false
+  xy: 1585, 217
+  size: 219, 277
+  orig: 395, 492
+  offset: 27, 182
+  index: -1
+images/g
+  rotate: true
+  xy: 266, 41
+  size: 35, 34
+  orig: 72, 72
+  offset: 18, 19
+  index: -1
+images/gc
+  rotate: false
+  xy: 150, 14
+  size: 115, 115
+  orig: 115, 115
+  offset: 0, 0
+  index: -1
+images/ggg3_00
+  rotate: false
+  xy: 1852, 40
+  size: 135, 135
+  orig: 135, 135
+  offset: 0, 0
+  index: -1
+images/gx
+  rotate: false
+  xy: 1805, 330
+  size: 169, 164
+  orig: 169, 169
+  offset: 0, 1
+  index: -1
+images/hx2
+  rotate: false
+  xy: 377, 3
+  size: 144, 144
+  orig: 180, 180
+  offset: 18, 18
+  index: -1
+images/jb
+  rotate: false
+  xy: 266, 77
+  size: 36, 54
+  orig: 54, 54
+  offset: 5, 0
+  index: -1
+images/lizi
+  rotate: false
+  xy: 266, 19
+  size: 21, 21
+  orig: 21, 21
+  offset: 0, 0
+  index: -1
+images/pic_32_chest
+  rotate: false
+  xy: 0, 1
+  size: 149, 128
+  orig: 149, 128
+  offset: 0, 0
+  index: -1
+images/pic_33_chest
+  rotate: false
+  xy: 1805, 176
+  size: 156, 153
+  orig: 156, 153
+  offset: 0, 0
+  index: -1
+images/pic_53_make money_00
+  rotate: true
+  xy: 1464, 2
+  size: 198, 247
+  orig: 198, 247
+  offset: 0, 0
+  index: -1
+images/xx
+  rotate: false
+  xy: 1712, 36
+  size: 139, 139
+  orig: 139, 139
+  offset: 0, 0
+  index: -1

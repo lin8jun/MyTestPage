@@ -82,12 +82,18 @@
       "label": "Mobile install preview 5"
     },
     {
-      "src": "./install_shot_desktop.63446.webp",
+      "src": "./install_shot_desktop.6bbae.webp",
       "sizes": "1600x900",
       "type": "image/webp",
       "form_factor": "wide",
       "name": "Desktop install preview",
       "label": "Desktop install preview"
+    }
+  ],
+  "protocol_handlers": [
+    {
+      "protocol": "web+vegasfox",
+      "url": "./index.html?url=%s"
     }
   ]
 }

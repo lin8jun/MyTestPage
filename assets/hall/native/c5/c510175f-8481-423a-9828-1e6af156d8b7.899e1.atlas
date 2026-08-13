@@ -1,0 +1,41 @@
+
+zp-deng.png
+size: 2018,397
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+d
+  rotate: false
+  xy: 1244, 11
+  size: 397, 384
+  orig: 397, 384
+  offset: 0, 0
+  index: -1
+d1
+  rotate: true
+  xy: 1643, 2
+  size: 393, 373
+  orig: 393, 373
+  offset: 0, 0
+  index: -1
+d2
+  rotate: false
+  xy: 2, 4
+  size: 412, 391
+  orig: 413, 391
+  offset: 1, 0
+  index: -1
+d3
+  rotate: false
+  xy: 416, 4
+  size: 412, 391
+  orig: 413, 391
+  offset: 1, 0
+  index: -1
+d4
+  rotate: false
+  xy: 830, 4
+  size: 412, 391
+  orig: 413, 391
+  offset: 1, 0
+  index: -1
