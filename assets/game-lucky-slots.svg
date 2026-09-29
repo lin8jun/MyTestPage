@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-labelledby="title desc">
+  <title id="title">Lucky Slots</title><desc id="desc">彩色老虎机游戏图标</desc>
+  <defs><linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#7c3aed"/><stop offset="1" stop-color="#ec4899"/></linearGradient></defs>
+  <rect width="800" height="600" rx="72" fill="url(#bg)"/>
+  <circle cx="650" cy="100" r="110" fill="#fef08a" opacity=".25"/><circle cx="130" cy="500" r="160" fill="#22d3ee" opacity=".18"/>
+  <rect x="165" y="125" width="470" height="350" rx="44" fill="#111827" stroke="#fef08a" stroke-width="16"/>
+  <rect x="220" y="205" width="360" height="145" rx="24" fill="#f8fafc"/>
+  <text x="275" y="305" font-family="Arial,sans-serif" font-size="88" font-weight="700" fill="#7c3aed">7 7 7</text>
+  <circle cx="265" cy="412" r="25" fill="#fbbf24"/><circle cx="400" cy="412" r="25" fill="#fbbf24"/><circle cx="535" cy="412" r="25" fill="#fbbf24"/>
+  <text x="400" y="90" text-anchor="middle" font-family="Arial,sans-serif" font-size="54" font-weight="800" fill="#fff">LUCKY SLOTS</text>
+</svg>

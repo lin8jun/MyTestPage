@@ -1,10 +1,10 @@
 {
-  "description": "Vegas Fox is a fast portrait-first web app with installable full-screen gameplay.",
-  "id": "./index.html{query}",
-  "name": "Vegas Fox",
-  "short_name": "Vegas Fox",
-  "start_url": "./index.html{query}",
-  "scope": "./",
+  "description": "Slot Portrait Hall is a fast portrait-first web app with installable full-screen gameplay.",
+  "id": "../index.html{query}",
+  "name": "Slot Portrait Hall",
+  "short_name": "Slot Portrait Hall",
+  "start_url": "../index.html{query}",
+  "scope": "../",
   "display": "standalone",
   "display_override": [
     "standalone",
@@ -12,8 +12,8 @@
     "browser"
   ],
   "orientation": "portrait",
-  "background_color": "#000A1B",
-  "theme_color": "#000A1B",
+  "background_color": "#000a1b",
+  "theme_color": "#000a1b",
   "categories": [
     "games",
     "entertainment"
@@ -22,19 +22,19 @@
   "related_applications": [
     {
       "platform": "webapp",
-      "url": "./manifest.webmanifest",
-      "id": "./index.html{query}"
+      "url": "../manifest.webmanifest",
+      "id": "../index.html{query}"
     }
   ],
   "icons": [
     {
-      "src": "./icon_192.3c47b.webp",
+      "src": "../icon_192.webp",
       "sizes": "192x192",
       "type": "image/webp",
       "purpose": "any"
     },
     {
-      "src": "./icon_512.d4a80.webp",
+      "src": "../icon_512.webp",
       "sizes": "512x512",
       "type": "image/webp",
       "purpose": "any"
@@ -42,7 +42,7 @@
   ],
   "screenshots": [
     {
-      "src": "./install_shot_mobile_1.7576e.webp",
+      "src": "../install_shot_mobile_1.webp",
       "sizes": "1080x1920",
       "type": "image/webp",
       "form_factor": "narrow",
@@ -50,7 +50,7 @@
       "label": "Mobile install preview 1"
     },
     {
-      "src": "./install_shot_mobile_2.3b4b4.webp",
+      "src": "../install_shot_mobile_2.webp",
       "sizes": "1080x1920",
       "type": "image/webp",
       "form_factor": "narrow",
@@ -58,7 +58,7 @@
       "label": "Mobile install preview 2"
     },
     {
-      "src": "./install_shot_mobile_3.b6ab1.webp",
+      "src": "../install_shot_mobile_3.webp",
       "sizes": "1080x1920",
       "type": "image/webp",
       "form_factor": "narrow",
@@ -66,7 +66,7 @@
       "label": "Mobile install preview 3"
     },
     {
-      "src": "./install_shot_mobile_4.4cb7f.webp",
+      "src": "../install_shot_mobile_4.webp",
       "sizes": "1080x1920",
       "type": "image/webp",
       "form_factor": "narrow",
@@ -74,7 +74,7 @@
       "label": "Mobile install preview 4"
     },
     {
-      "src": "./install_shot_mobile_5.d3d60.webp",
+      "src": "../install_shot_mobile_5.webp",
       "sizes": "1080x1920",
       "type": "image/webp",
       "form_factor": "narrow",
@@ -82,7 +82,7 @@
       "label": "Mobile install preview 5"
     },
     {
-      "src": "./install_shot_desktop.6bbae.webp",
+      "src": "../install_shot_desktop.webp",
       "sizes": "1600x900",
       "type": "image/webp",
       "form_factor": "wide",
@@ -93,7 +93,7 @@
   "protocol_handlers": [
     {
       "protocol": "web+vegasfox",
-      "url": "./index.html?url=%s"
+      "url": "../index.html?url=%s"
     }
   ]
 }

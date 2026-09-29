@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-labelledby="title">
+  <title id="title">游戏图标不可用</title>
+  <rect width="400" height="300" rx="32" fill="#334155"/>
+  <path d="M90 220l62-72 48 52 42-48 68 68H90z" fill="#94a3b8"/>
+  <circle cx="145" cy="105" r="25" fill="#cbd5e1"/>
+  <text x="200" y="265" text-anchor="middle" font-family="Arial,sans-serif" font-size="22" fill="#e2e8f0">ICON UNAVAILABLE</text>
+</svg>
