@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "format": "astc-8x8-linear",
+  "alphaMode": 2,
+  "width": 1992,
+  "height": 493,
+  "file": "ui_baoxiang.png.eb44f3dcaa932408.astc",
+  "sha256": "eb44f3dcaa9324089227c075e6521481b71538773703d60b99b360fb4861b18b",
+  "sourceSha256": "98c037ca74c44d756128a5e67faf931e1fb826d63698cd3b881933f15eba8414",
+  "blockBytes": 247008,
+  "platform": "web",
+  "presetId": "e7hf+z9T9KO64QfFy/641u",
+  "presetName": "For Spine 8x8",
+  "quality": "exhaustive",
+  "pngQuality": 100,
+  "genMipmaps": false
+}

@@ -1,9 +1,9 @@
 {
   "description": "Slot Portrait Hall is a fast portrait-first web app with installable full-screen gameplay.",
-  "id": "../index.html{query}",
+  "id": "../index.html",
   "name": "Slot Portrait Hall",
   "short_name": "Slot Portrait Hall",
-  "start_url": "../index.html{query}",
+  "start_url": "../index.html",
   "scope": "../",
   "display": "standalone",
   "display_override": [
@@ -23,7 +23,7 @@
     {
       "platform": "webapp",
       "url": "../manifest.webmanifest",
-      "id": "../index.html{query}"
+      "id": "../index.html"
     }
   ],
   "icons": [
