@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "format": "astc-8x8-linear",
+  "alphaMode": 2,
+  "width": 610,
+  "height": 386,
+  "file": "ui_hongbao_1.png.bae3597ed68b4b1b.astc",
+  "sha256": "bae3597ed68b4b1b86f450b0fc3f05fc2d1e6e686a74fd50bc510d6d1e2a08b0",
+  "sourceSha256": "b7b229dd9269497e6132fcaf28d42c4a2b61464b45ee8f290782db35154ac644",
+  "blockBytes": 60368,
+  "platform": "web",
+  "presetId": "e7hf+z9T9KO64QfFy/641u",
+  "presetName": "For Spine 8x8",
+  "quality": "exhaustive",
+  "pngQuality": 100,
+  "genMipmaps": false
+}

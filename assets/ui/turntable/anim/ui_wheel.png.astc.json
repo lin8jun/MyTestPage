@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "format": "astc-8x8-linear",
+  "alphaMode": 2,
+  "width": 1039,
+  "height": 801,
+  "file": "ui_wheel.png.ad6d643472c689c2.astc",
+  "sha256": "ad6d643472c689c24865e9d17a1d4b64a23d8d1bfd88bd9b27ce7956af2f57d7",
+  "sourceSha256": "337b267ff807469c02e3d79c00114c5ae8a683c4c632632ec5f04c399c8962c0",
+  "blockBytes": 210080,
+  "platform": "web",
+  "presetId": "e7hf+z9T9KO64QfFy/641u",
+  "presetName": "For Spine 8x8",
+  "quality": "exhaustive",
+  "pngQuality": 100,
+  "genMipmaps": false
+}
