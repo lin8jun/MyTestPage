@@ -1,1 +1,0 @@
-import{as as e,a6 as i,an as t}from"./119af687a1ab79d9b55c0419.js";function m(s,r,n="warn",o=!1){if(!(s instanceof e)&&!o)return;const a=s instanceof e&&s.serverMessage?s.serverMessage:i(r);t(a,n)}export{m as w};
