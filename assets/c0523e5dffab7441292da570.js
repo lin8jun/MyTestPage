@@ -1,1 +1,0 @@
-import{d as i,I as r,b as c,R as u}from"./4e1f08e9757a4fd1a96e273e.js";const f=i({__name:"LoadingRequest",props:{active:{type:Boolean,default:!0},options:{default:void 0}},setup(s){const t=s,a=r();let e;function n(){e?.(),e=void 0}return c(()=>t.active,o=>{o&&!e?e=a.beginLoading(t.options):o||n()},{immediate:!0,flush:"sync"}),u(n),(o,p)=>null}});export{f as _};

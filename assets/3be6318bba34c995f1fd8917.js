@@ -1,1 +1,0 @@
-import{bp as a,aG as i,c1 as s}from"./4e1f08e9757a4fd1a96e273e.js";async function u(n){const e=a.capture();if(!e.token||a.isExpired()){await n.push({name:i.LOGIN});return}const o=s();o.queue.some(t=>t.type==="mail")||o.enqueue({type:"mail",payload:{owner:e.token,tokenVersion:e.tokenVersion}})}export{u as o};
