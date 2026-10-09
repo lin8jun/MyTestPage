@@ -1,0 +1,27 @@
+
+9fd543543571e5d9b1a5188d.png
+size: 1039,801
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+images/2a
+  rotate: false
+  xy: 884, 613
+  size: 31, 31
+  orig: 31, 31
+  offset: 0, 0
+  index: -1
+images/pic_01
+  rotate: false
+  xy: 1, 1
+  size: 881, 799
+  orig: 881, 799
+  offset: 0, 0
+  index: -1
+images/xx1
+  rotate: false
+  xy: 884, 646
+  size: 154, 154
+  orig: 154, 154
+  offset: 0, 0
+  index: -1

@@ -1,0 +1,77 @@
+
+d11fe5b8ee937af527a5293b.png
+size: 425,989
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+pma: true
+1
+  rotate: true
+  xy: 345, 263
+  size: 348, 74
+  orig: 348, 75
+  offset: 0, 1
+  index: -1
+2
+  rotate: true
+  xy: 345, 613
+  size: 374, 78
+  orig: 374, 78
+  offset: 0, 0
+  index: -1
+d1
+  rotate: true
+  xy: 2, 2
+  size: 414, 93
+  orig: 414, 93
+  offset: 0, 0
+  index: -1
+d2
+  rotate: true
+  xy: 97, 2
+  size: 414, 93
+  orig: 414, 93
+  offset: 0, 0
+  index: -1
+jk-hg
+  rotate: false
+  xy: 192, 48
+  size: 159, 55
+  orig: 159, 55
+  offset: 0, 0
+  index: -1
+jk1
+  rotate: true
+  xy: 2, 418
+  size: 569, 208
+  orig: 575, 213
+  offset: 2, 3
+  index: -1
+jk2
+  rotate: true
+  xy: 212, 375
+  size: 612, 131
+  orig: 612, 131
+  offset: 0, 0
+  index: -1
+shanguang
+  rotate: false
+  xy: 192, 304
+  size: 69, 69
+  orig: 80, 80
+  offset: 4, 5
+  index: -1
+sweep
+  rotate: true
+  xy: 192, 105
+  size: 156, 228
+  orig: 162, 235
+  offset: 3, 3
+  index: -1
+x7
+  rotate: false
+  xy: 192, 404
+  size: 13, 12
+  orig: 14, 14
+  offset: 0, 1
+  index: -1
