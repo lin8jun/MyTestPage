@@ -1,0 +1,1 @@
+function g(a){const t=a.getFullYear(),e=a.getMonth(),l=new Date(t,e,1),n=new Date(t,e,1-l.getDay());return Array.from({length:42},(s,o)=>{const r=new Date(n.getFullYear(),n.getMonth(),n.getDate()+o);return{date:r,isCurrentMonth:r.getFullYear()===t&&r.getMonth()===e}})}export{g as b};
