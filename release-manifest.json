@@ -1,6 +1,6 @@
 {
-  "version": "202610101759",
-  "builtAt": "2026-10-10T10:01:13.945Z",
+  "version": "202610101801",
+  "builtAt": "2026-10-10T10:03:15.617Z",
   "gitCommit": "83e67b36e293773eb75cddde202f88fc607fa2bd",
   "dirty": true,
   "lockSha256": "cbb736c49226efd519df6646cdf04372744cea0bf8e6feff26504263d2af65e5",
@@ -6501,7 +6501,7 @@
     {
       "path": "index.html",
       "bytes": 2211,
-      "sha256": "4c79129c49ba284616a4ff16f966459dc4046fc3e57cb27009b13eb3b5977f24"
+      "sha256": "b7f6daf4d5b0986232f059a3a21d75067b4ade51a0023f6df04efc4f873344d4"
     },
     {
       "path": "manifest.json",
@@ -6526,12 +6526,12 @@
     {
       "path": "sw.js",
       "bytes": 93659,
-      "sha256": "55a009c01d294f74585ae8d2634a9407de1b89cde80315a29598624416d7021f"
+      "sha256": "eaa954f486126a8e165e41d56a170e003f13972ac3ab6d14fc6ced622b2cd1b8"
     },
     {
       "path": "version.json",
       "bytes": 32,
-      "sha256": "bc6126fe3486299880db3c214bc3df3801c96d075ada1c0351d4b0cd4097cd14"
+      "sha256": "679f18a743de405b5115b7b19d59c661324805a34562f36674aa435427aaca64"
     },
     {
       "path": "workbox-9c191d2f.js",
